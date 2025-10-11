@@ -1,11 +1,12 @@
 import axios from "axios"
 import qs from "qs"
+import { useUserStore } from '@/stores/user'
 
 let config = {
   // baseURL: '/api',
   baseURL: import.meta.env.VITE_axios_baseURL,
   // timeout: 60 * 1000, // Timeout
-  withCredentials: true, // Check cross-site Access-Control
+  // withCredentials: true, // Check cross-site Access-Control
   paramsSerializer: { // `paramsSerializer` is an optional function in charge of serializing `params`. (e.g. https://www.npmjs.com/package/qs, http://api.jquery.com/jquery.param/)
     serialize : (params) => {
       /*
@@ -32,6 +33,10 @@ const _axios = axios.create(config)
 
 _axios.interceptors.request.use(
   function(config) {
+    const userStore = useUserStore()
+    if (userStore.accessToken) {
+      config.headers.Authorization = `Bearer ${userStore.accessToken}`
+    }
     return config
   },
   function(error) {

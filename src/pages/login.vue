@@ -72,11 +72,15 @@ const onSubmit = async () => {
   errorMessage.value = ''
 
   try {
-    const { data } = await axios.post('/auth/login', {
-      userId: id.value,
+    const { data } = await axios.post('/api/auth/login', {
+      loginId: id.value,
       password: password.value
     })
 
+    const { accessToken, expiresAt, tokenType, user } = data
+
+    userStore.accessToken = accessToken
+    userStore.tokenExpiresAt = expiresAt
     const userInfo = data?.user ?? data ?? {}
     const resolvedId = userInfo.id ?? id.value
 

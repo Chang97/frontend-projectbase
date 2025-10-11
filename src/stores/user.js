@@ -15,6 +15,8 @@ export const useUserStore = defineStore('user', () => {
   const svcMode = ref('')
   const lastLoginDate = ref('')
   const lastLoginIp = ref('')
+  const accessToken = ref('')
+  const tokenExpiresAt = ref(null)
 
   function $reset() {
     id.value = ''
@@ -27,6 +29,8 @@ export const useUserStore = defineStore('user', () => {
     svcMode.value = ''
     lastLoginDate.value = ''
     lastLoginIp.value = ''
+    accessToken.value = ''
+    tokenExpiresAt.value = null
   }
 
   return {
@@ -40,7 +44,8 @@ export const useUserStore = defineStore('user', () => {
     svcMode,
     lastLoginDate,
     lastLoginIp,
-    
+    accessToken, 
+    tokenExpiresAt,
     $reset, 
   
   }
