@@ -39,7 +39,7 @@ const isAuthenticated = () => {
     }
 
     const parsed = JSON.parse(persistedUser)
-    return Boolean(parsed?.id)
+    return Boolean(parsed?.accessToken) && Boolean(parsed?.loginId || parsed?.userId)
   } catch (error) {
     console.warn('Failed to read user session data', error)
     return false

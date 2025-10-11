@@ -50,10 +50,9 @@ const loading = ref(false)
 const errorMessage = ref('')
 const canSubmit = computed(() => Boolean(id.value) && Boolean(password.value) && !loading.value)
 const postLoginPath = import.meta.env.VITE_home_page || '/main'
-const assignableKeys = ['id', 'name', 'authorCd', 'orgCd', 'orgNm', 'menuList', 'leafMenuList', 'svcMode', 'lastLoginDate', 'lastLoginIp']
 
 onBeforeMount(() => {
-  if (userStore.id) {
+  if (userStore.isAuthenticated) {
     router.replace({ path: postLoginPath })
   }
 })
@@ -77,32 +76,29 @@ const onSubmit = async () => {
       password: password.value
     })
 
-    const { accessToken, expiresAt, tokenType, user } = data
-
-    userStore.accessToken = accessToken
-    userStore.tokenExpiresAt = expiresAt
+    // 공통 세션 관리 로직은 store로 위임한다.
     const userInfo = data?.user ?? data ?? {}
-    const resolvedId = userInfo.id ?? id.value
+    const resolvedLoginId = userInfo.loginId ?? data?.loginId ?? id.value
+    const resolvedUserId = userInfo.userId ?? data?.userId ?? null
 
-    if (!resolvedId) {
-      throw new Error('Unable to resolve user information.')
+    if (!resolvedLoginId) {
+      throw new Error('Unable to resolve user identity.')
     }
 
-    assignableKeys.forEach((key) => {
-      if (userInfo[key] !== undefined) {
-        userStore[key] = userInfo[key]
+    userStore.setSession(
+      data,
+      {
+        fallbackLoginId: resolvedLoginId,
+        fallbackUserId: resolvedUserId,
+        user: userInfo
       }
-    })
-
-    if (!userStore.id) {
-      userStore.id = resolvedId
-    }
+    )
 
     router.replace({ path: postLoginPath })
   } catch (error) {
     const fallback = error?.response?.data?.message || error.message || 'Failed to sign in. Please try again.'
     errorMessage.value = fallback
-    userStore.$reset()
+    userStore.logout()
   } finally {
     loading.value = false
   }
@@ -222,4 +218,3 @@ const onSubmit = async () => {
   }
 }
 </style>
-

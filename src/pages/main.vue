@@ -9,7 +9,6 @@
 import { inject, onBeforeMount, onMounted, ref } from "vue"
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
-import { useTempExcelStore } from '@/stores/tempExcel'
 
 const axios = inject('axios')
 const router = useRouter()
