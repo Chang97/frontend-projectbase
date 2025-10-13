@@ -8,7 +8,7 @@ const axiosConfig = {
   // baseURL: '/api',
   baseURL: import.meta.env.VITE_axios_baseURL,
   // timeout: 60 * 1000, // Timeout
-  // withCredentials: true, // Check cross-site Access-Control
+  withCredentials: true, // 쿠키 기반 인증 세션을 공유하기 위해 true 설정
   paramsSerializer: {
     // axios 기본 qs 처리에 []이 포함될 때 문제가 있어 직접 직렬화 로직을 붙인다.
     serialize: (params) => {
@@ -52,17 +52,24 @@ const redirectToLogin = () => {
   }
 }
 
-const fetchRefreshedToken = async (userStore) => {
+// Refresh 쿠키를 이용해 서버 세션을 연장한다. 동시에 스토어를 최신 사용자 정보로 갱신한다.
+const refreshSession = async (userStore) => {
   if (!refreshPromise) {
     refreshPromise = refreshClient
       .post(REFRESH_ENDPOINT)
       .then(({ data }) => {
-        if (!data?.accessToken) {
-          throw new Error('토큰 갱신 응답에 accessToken이 없습니다.')
-        }
-
-        userStore.setSession(data, { preserveExistingUser: true })
-        return userStore.accessToken
+        const userInfo = data?.user ?? {}
+        userStore.setSession(data, {
+          preserveExistingUser: true,
+          user: userInfo,
+          fallbackLoginId: userInfo?.loginId ?? '',
+          fallbackUserId: userInfo?.userId ?? null
+        })
+        return true
+      })
+      .catch((error) => {
+        userStore.logout()
+        throw error
       })
       .finally(() => {
         refreshPromise = null
@@ -71,36 +78,6 @@ const fetchRefreshedToken = async (userStore) => {
 
   return refreshPromise
 }
-
-apiClient.interceptors.request.use(
-  async (requestConfig) => {
-    if (requestConfig.url?.includes(REFRESH_ENDPOINT)) {
-      return requestConfig
-    }
-
-    const userStore = useUserStore()
-    if (!userStore.accessToken) {
-      return requestConfig
-    }
-
-    if (userStore.shouldRefreshToken) {
-      try {
-        await fetchRefreshedToken(userStore)
-      } catch (error) {
-        userStore.logout()
-        redirectToLogin()
-        return Promise.reject(error)
-      }
-    }
-
-    requestConfig.headers = requestConfig.headers ?? {}
-    const tokenType = userStore.tokenType || 'Bearer'
-    requestConfig.headers.Authorization = `${tokenType} ${userStore.accessToken}`
-
-    return requestConfig
-  },
-  (error) => Promise.reject(error)
-)
 
 function recurMakeId(obj) {
   if (Array.isArray(obj)) {
@@ -146,18 +123,10 @@ apiClient.interceptors.response.use(
 
     const isRefreshRequest = originalRequest?.url?.includes(REFRESH_ENDPOINT)
 
-    if (
-      status === 401 &&
-      !originalRequest?.__isRetryRequest &&
-      !isRefreshRequest &&
-      userStore.accessToken
-    ) {
+    if (status === 401 && !originalRequest?.__isRetryRequest && !isRefreshRequest) {
       try {
-        await fetchRefreshedToken(userStore)
+        await refreshSession(userStore)
         originalRequest.__isRetryRequest = true
-        originalRequest.headers = originalRequest.headers ?? {}
-        const tokenType = userStore.tokenType || 'Bearer'
-        originalRequest.headers.Authorization = `${tokenType} ${userStore.accessToken}`
         return apiClient(originalRequest)
       } catch (refreshError) {
         userStore.logout()

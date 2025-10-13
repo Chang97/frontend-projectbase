@@ -16,21 +16,6 @@ const DEFAULT_USER_STATE = {
   useYn: false
 }
 
-const REFRESH_THRESHOLD_MS = 60 * 1000 // 토큰 만료 1분 전에는 갱신을 시도한다.
-
-const normalizeExpiresAt = (value) => {
-  if (!value) {
-    return null
-  }
-
-  const date = value instanceof Date ? value : new Date(value)
-  if (Number.isNaN(date.getTime())) {
-    return null
-  }
-
-  return date.toISOString()
-}
-
 const createUserFieldRefs = () => {
   return Object.entries(DEFAULT_USER_STATE).reduce((acc, [key, defaultValue]) => {
     acc[key] = ref(defaultValue)
@@ -42,53 +27,11 @@ export const useUserStore = defineStore(
   'user',
   () => {
     const userFieldRefs = createUserFieldRefs()
-    const accessToken = ref('')
-    const tokenType = ref('Bearer')
-    const tokenExpiresAt = ref(null) // ISO-8601 문자열 또는 null
     const menuTree = ref([])
     const accessibleMenus = ref([])
+    const sessionChecked = ref(false) // /api/auth/me 호출을 통해 세션을 확인한 적이 있는지 여부
 
-    const tokenExpiresAtMs = computed(() => {
-      if (!tokenExpiresAt.value) {
-        return null
-      }
-
-      const timestamp = new Date(tokenExpiresAt.value).getTime()
-      return Number.isNaN(timestamp) ? null : timestamp
-    })
-
-    const isAuthenticated = computed(() => {
-      const hasToken = Boolean(accessToken.value)
-      const hasIdentity = Boolean(userFieldRefs.loginId.value || userFieldRefs.userId.value)
-      return hasToken && hasIdentity
-    })
-
-    const isAccessTokenExpired = computed(() => {
-      const expiresAt = tokenExpiresAtMs.value
-      if (!expiresAt) {
-        return false
-      }
-
-      return Date.now() >= expiresAt
-    })
-
-    const shouldRefreshToken = computed(() => {
-      const expiresAt = tokenExpiresAtMs.value
-      if (!expiresAt) {
-        return false
-      }
-
-      return expiresAt - Date.now() <= REFRESH_THRESHOLD_MS
-    })
-
-    const secondsUntilExpiry = computed(() => {
-      const expiresAt = tokenExpiresAtMs.value
-      if (!expiresAt) {
-        return null
-      }
-
-      return Math.max(Math.floor((expiresAt - Date.now()) / 1000), 0)
-    })
+    const isAuthenticated = computed(() => Boolean(userFieldRefs.loginId.value || userFieldRefs.userId.value))
 
     // 메뉴 트리에서 최하위 노드만 골라내기 위한 파생 데이터.
     const leafMenus = computed(() => {
@@ -125,9 +68,9 @@ export const useUserStore = defineStore(
     }
 
     /**
-     * 로그인·토큰 재발급 응답을 공통으로 처리한다.
-     * - accessToken, expiresAt, tokenType, user 필드를 반영한다.
-     * - user 정보가 존재하지 않으면 preserveExistingUser가 false일 때만 사용자 정보를 초기화한다.
+     * 서버가 내려준 사용자/메뉴 정보를 스토어에 반영한다.
+     * - user 정보가 존재하지 않으면 preserveExistingUser 가 false일 때만 초기화한다.
+     * - 메뉴 목록은 응답에 없을 때 preserveExistingUser 옵션에 따라 유지/초기화한다.
      */
     const setSession = (payload = {}, options = {}) => {
       const {
@@ -137,23 +80,9 @@ export const useUserStore = defineStore(
         user: forcedUser
       } = options
 
-      if (payload.accessToken !== undefined) {
-        accessToken.value = payload.accessToken ?? ''
-      }
-
-      if (payload.tokenType) {
-        tokenType.value = payload.tokenType
-      } else if (!tokenType.value) {
-        tokenType.value = 'Bearer'
-      }
-
-      if (payload.expiresAt !== undefined) {
-        tokenExpiresAt.value = normalizeExpiresAt(payload.expiresAt)
-      }
-
-      const userSnapshot = payload.user ?? forcedUser
-      if (userSnapshot) {
-        applyUserSnapshot(userSnapshot)
+      const sessionUser = payload.user ?? forcedUser
+      if (sessionUser) {
+        applyUserSnapshot(sessionUser)
       } else if (!preserveExistingUser) {
         resetUserFields()
       }
@@ -183,41 +112,38 @@ export const useUserStore = defineStore(
           userFieldRefs.userId.value = resolvedUserId
         }
       }
-    }
 
-    const updateTokenOnly = (payload = {}) => {
-      setSession(payload, { preserveExistingUser: true })
+      sessionChecked.value = true
     }
 
     const logout = () => {
-      accessToken.value = ''
-      tokenType.value = 'Bearer'
-      tokenExpiresAt.value = null
       resetUserFields()
       menuTree.value = []
       accessibleMenus.value = []
+      sessionChecked.value = true // 이후 라우팅에서 다시 /me를 호출하지 않도록 체크 완료 플래그 유지
+    }
+
+    const markSessionChecked = () => {
+      sessionChecked.value = true
     }
 
     function $reset() {
-      logout()
+      resetUserFields()
+      menuTree.value = []
+      accessibleMenus.value = []
+      sessionChecked.value = false // persisted 값도 초기화되어 새 탭에서 다시 세션 체크를 수행
     }
 
     return {
       ...userFieldRefs,
-      accessToken,
-      tokenType,
-      tokenExpiresAt,
       menuTree,
       accessibleMenus,
-      leafMenus,
-      tokenExpiresAtMs,
+      sessionChecked,
       isAuthenticated,
-      isAccessTokenExpired,
-      shouldRefreshToken,
-      secondsUntilExpiry,
+      leafMenus,
       setSession,
-      updateTokenOnly,
       logout,
+      markSessionChecked,
       $reset
     }
   },
@@ -227,7 +153,13 @@ export const useUserStore = defineStore(
       strategies: [
         {
           key: 'user',
-          storage: sessionStorage
+          storage: sessionStorage,
+          paths: [
+            ...Object.keys(DEFAULT_USER_STATE),
+            'menuTree',
+            'accessibleMenus',
+            'sessionChecked' // 세션 체크 여부도 포함시켜 동일 탭에서는 재요청을 생략
+          ]
         }
       ]
     }

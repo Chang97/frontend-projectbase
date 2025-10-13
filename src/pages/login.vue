@@ -94,6 +94,8 @@ const onSubmit = async () => {
       }
     )
 
+    console.log(data)
+
     router.replace({ path: postLoginPath })
   } catch (error) {
     const fallback = error?.response?.data?.message || error.message || 'Failed to sign in. Please try again.'
