@@ -1,0 +1,27 @@
+@import url('./popup.css');
+
+.content-popup {
+    position: fixed;
+    top: 50%;
+    right: 24px;
+    min-width: 720px;
+    width: calc(100% - 274px);
+    max-height: calc(100vh - 48px);
+    padding: 0;
+    background-color: var(--white);
+    box-shadow: 0px 0px 25px rgba(0, 0, 0, 0.35);
+    border-radius: 16px;
+    overflow: hidden;
+}
+.content-popup .tab-menu {
+    margin: -14px 0 20px;
+}
+.content-popup .popup-title {
+    margin-bottom: 16px;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 120%;
+}
+.content-popup .popup-body {
+    padding: 30px;
+}

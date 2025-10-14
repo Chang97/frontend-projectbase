@@ -1,0 +1,452 @@
+.ag-theme-balham {
+	font-family: 'Pretendard', sans-serif !important;
+  /* --ag-selected-row-background-color: rgba(255, 255, 0, 0.2); */
+  --ag-selected-row-background-color: #F5F8FC;
+  --ag-row-height: 28px;
+  /* 24.02.13 수정(전체 그리드 border 관련) */
+  --ag-cell-horizontal-border: var(--ag-row-border-width) var(--ag-row-border-style) var(--ag-row-border-color); 
+  /* grid row hover color */
+  /* --ag-row-hover-color: rgb(222, 220, 220); */
+  --ag-row-hover-color: rgb(255, 255, 255);
+  --ag-row-border-color: #e0e0e0;
+  --ag-border-color: #e0e0e0;
+  margin-top: 6px;
+}
+
+/* 변경이력 아이콘 추가 */
+.ag-cell-value .hist-icon {
+	width: 2rem;
+	height: 2rem;
+	background-image: url('../images/icon/icon-menu04.svg');
+}
+
+.grid-area .ag-theme-balham {
+  height: 100%;
+  margin-top: 0;
+}
+.ag-theme-balham.left .ag-layout-normal {
+  background-color: #f7f7f7;
+}
+.ag-checkbox-input {
+  min-width: 17px;
+  min-height: 17px;
+}
+
+.ag-header, .ag-header-cell, .ag-header-group-cell {
+  -webkit-user-select: text;
+     -moz-user-select: text;
+      -ms-user-select: text;
+          user-select: text;
+}
+
+/* grid 복사 주석 풀기 */
+/* .ag-theme-balham .ag-body.ag-layout-normal * {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+} */
+
+.ag-overlay-no-rows-wrapper {
+  height: calc(100% + 42px);
+}
+
+.table-created-bg-sp1 {
+	background-color: #fcfdfe !important;
+}
+
+/* 높이 낮추면서 수정한 css들 */
+.ag-cell-value input[type="date"] {
+  height: 23px;
+}
+.ag-cell-value input[type="date"]::after {
+  top: 1px;
+}
+
+.ag-theme-balham input[type=date], 
+.ag-theme-balham input[type=number], 
+.ag-theme-balham input[type=month], 
+.ag-theme-balham input[type=text], .ag-theme-balham select {
+  height: 25px;
+  border-radius: 5px;
+  font-size: 12px;
+}
+.ag-theme-balham .select {
+  height: 25px;
+  border-radius: 5px !important;
+}
+.ag-theme-balham select {
+  padding: 2px 28px 0 7px;
+  text-align: center;
+}
+/* 높이 낮추면서 수정한 css들 */
+
+/* sort icon 삭제 */
+.ag-header-cell-sortable .ag-sort-indicator-icon {
+  display: none;
+}
+
+/* 24.02.13 수정(전체 그리드 border 관련) */
+/* .ag-root-wrapper.ag-layout-normal {
+  border: 0;
+} */
+.ag-root-wrapper {
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+.ag-root-wrapper.ag-layout-normal {
+  min-height: 140px;
+}
+.bottom-grid .ag-root-wrapper.ag-layout-normal {
+  min-height: unset;
+}
+/* 25.04.04 데이터 없을 때 표기하는 텍스트 헤더에 걸쳐서 주석처리 */
+/* 25.04.04 그리드 높이 이상해져서 원복 */
+.ag-root-wrapper-body.ag-layout-normal {
+  height: auto;
+}
+.ag-theme-balham.indi .ag-root-wrapper.ag-layout-normal {
+  border-top: 1px solid var(--mediumgray);
+  border-radius: 6px;
+}
+.ag-theme-balham.indi .ag-header-cell {
+  border-right: 1px solid var(--mediumgray);
+}
+.ag-theme-balham.indi .ag-header-group-cell {
+  border-right: 1px solid var(--mediumgray);
+}
+.ag-theme-balham.indi .ag-body.ag-layout-normal {
+  border-left: 1px solid var(--mediumgray);
+  border-right: 1px solid var(--mediumgray);
+  border-bottom: 1px solid var(--mediumgray);
+  border-radius: 0 0 6px 6px;
+}
+.ag-theme-balham.indi .ag-header-group-cell,
+.ag-theme-balham.indi .ag-header-group-cell-label,
+.ag-theme-balham.indi .ag-header-cell-label  {
+  justify-content: center;
+}
+
+/* 24.02.13 수정(전체 그리드 border 관련) */
+.ag-header {
+  background-color: var(--table-header-bg);
+}
+.ag-theme-balham.indi .ag-header {
+  border-radius: 0;
+  border-bottom: 1px solid var(--mediumgray) !important;
+  border-right: 1px solid var(--mediumgray);
+  border-left: 1px solid var(--mediumgray);
+}
+.ag-header-cell {
+	justify-content: center;
+}
+/* 23.12.05 grid header 사라지는 오류 발생해서 주석처리
+.ag-header-span-total:first-child .ag-header-cell-comp-wrapper {
+	width: 0;
+}
+*/
+.ag-header-cell::after,
+.ag-header-group-cell::after {
+  display: none !important;
+}
+.ag-header-group-cell-label,
+.ag-header-cell-label {
+  display: flex;
+  justify-content: center;
+  color: var(--gray);
+	font-size: 1.4rem;
+  font-weight: 600;
+  line-height: 130%;
+  word-break: keep-all;
+}
+
+/* 24.02.13 수정(전체 그리드 border 관련) */
+/* .ag-row {
+  min-height: 40px !important;
+  border-bottom: 1px solid var(--table-stroke);
+  color: var(--table-gray) !important;
+} */
+.ag-row {
+  min-height: 40px !important;
+  color: var(--gray);
+}
+.ag-row:last-child {
+  border-bottom: 1px solid var(--table-stroke);
+}
+.ag-ltr .ag-cell {
+  height: max-content;
+  min-height: 100%;
+  /* 24.02.13 수정(전체 그리드 border 관련) */
+  /* border: none; */
+  /* line-height: 40px !important; */
+  text-align: center;
+  align-items: center;
+  display: inline-flex;
+}
+.ag-ltr .ag-cell > *:not(.icon) {
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  /* min-height: 40px; */
+  padding: 0;
+}
+.ag-ltr .ag-cell > .radio-wrap,
+.ag-ltr .ag-cell > .checkbox-wrap {
+  justify-content: center;
+  width: 100%;
+}
+.ag-ltr .ag-cell .contents,
+.ag-ltr .ag-cell .contents .content {
+	width: 100%;
+}
+.ag-cell-value , .ag-cell-value input {
+  /* 숫자 일정 너비 설정 */
+  font-variant-numeric:tabular-nums;
+}
+.ag-ltr .ag-cell .ag-cell-value {
+  /* 24.02.13 수정(전체 그리드 border 관련) */
+
+  font-size: 1.3rem;
+  font-weight: 400;
+  line-height: 150% !important;
+  text-overflow: ellipsis;
+}
+.ag-theme-balham.indi .ag-ltr .ag-cell {
+  text-align: center;
+  border-color: var(--mediumgray);
+}
+.ag-theme-balham .ag-ltr .ag-header-select-all,
+.ag-theme-balham .ag-ltr .ag-selection-checkbox {
+	margin-right: 0 !important;
+}
+.ag-cell-wrapper {
+  height: max-content;
+  min-height: 100%;
+  width: 100%;
+}
+
+/* 24.02.13 수정(전체 그리드 border 관련) */
+/* 체크박스 col */
+.ag-cell:has(.ag-cell-wrapper .ag-selection-checkbox) {
+  padding: 0 !important;
+}
+.ag-cell-wrapper:has(.ag-selection-checkbox) {
+  justify-content: center;
+  width: 100%;
+  margin: -1px 2px 0 0 !important;
+}
+.ag-cell-wrapper:has(.ag-selection-checkbox) .ag-cell-value:empty {
+  display: none;
+}
+
+.ag-header-row:not(:first-child) .ag-header-cell:not(.ag-header-span-height.ag-header-span-total),
+.ag-header-row:not(:first-child) .ag-header-group-cell.ag-header-group-cell-with-group {
+  border-color: var(--table-stroke) !important;
+}
+.ag-ltr .ag-cell-focus:not(.ag-cell-range-selected):focus-within, .ag-ltr .ag-context-menu-open .ag-cell-focus:not(.ag-cell-range-selected), .ag-ltr .ag-full-width-row.ag-row-focus:focus .ag-cell-wrapper.ag-row-group, .ag-ltr .ag-cell-range-single-cell, .ag-ltr .ag-cell-range-single-cell.ag-cell-range-handle, .ag-rtl .ag-cell-focus:not(.ag-cell-range-selected):focus-within, .ag-rtl .ag-context-menu-open .ag-cell-focus:not(.ag-cell-range-selected), .ag-rtl .ag-full-width-row.ag-row-focus:focus .ag-cell-wrapper.ag-row-group, .ag-rtl .ag-cell-range-single-cell, .ag-rtl .ag-cell-range-single-cell.ag-cell-range-handle {
+  border-right: var(--ag-row-border-width) var(--ag-row-border-style) var(--ag-row-border-color) !important;
+  border-left-color: transparent !important;
+  border-top-color: transparent !important;
+  border-bottom-color: transparent !important;
+  /* border-color: transparent !important; */
+  /* 24.02.13 수정(전체 그리드 border 관련) */
+  /* border: none !important; */
+  /* border-style: none !important; */
+  /* outline: none !important; */
+}
+.ag-ltr .ag-row .ag-cell.ag-cell-focus:not(.ag-cell-range-selected):focus-within:last-child {
+  border-right: 0 none !important;
+}
+.ag-ltr .b-r-s.ag-cell-focus:not(.ag-cell-range-selected):focus-within {
+	border-right: 1px solid var(--table-stroke) !important;
+}
+.ag-body .link {
+  display: inline-block;
+  width: 100%;
+  line-height: unset;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  vertical-align: middle;
+}
+.ag-cell,
+.ag-full-width-row .ag-cell-wrapper.ag-row-group,
+.ag-header-cell,
+.ag-header-group-cell {
+	padding: 0 8px !important;
+}
+.ag-ltr .ag-cell:has(select, .emissionSource),
+.ag-full-width-row .ag-cell-wrapper.ag-row-group:has(select),
+.ag-header-cell:has(select),
+.ag-header-group-cell:has(select) {
+	padding: 3px !important;
+}
+.ag-header-group-cell {
+	justify-content: center;
+}
+.ag-checkbox-input-wrapper {
+  font-size: 18px !important;
+  border-radius: 4px !important;
+}
+.ag-checkbox-input-wrapper:focus-within,
+.ag-checkbox-input-wrapper:active {
+  box-shadow: none !important;
+}
+.ag-checkbox-input-wrapper::after {
+  color: #dddddd !important;
+}
+input[class^=ag-]:checked,
+.ag-checkbox-input-wrapper.ag-checked {
+  background-color: #22ac38 !important;
+}
+.ag-checkbox-input-wrapper.ag-checked::after {
+  color: #fff !important;
+  background-color: #22ac38;
+}
+.ag-cell-inline-editing input[type="date"] {
+  padding-left: 30px !important;
+}
+.table-box .ag-root-wrapper,
+.table-box .ag-sticky-top,
+.table-box .ag-dnd-ghost {
+  background-color: transparent !important;
+}
+
+/* 24.02.13 수정(전체 그리드 border 관련) */
+/* .ag-header {
+	border: 1px solid var(--table-stroke) !important;
+} */
+.ag-header-cell, .ag-header-group-cell {
+	border-right: 1px solid var(--table-stroke);
+}
+.ag-pinned-left-header {
+	/* border-right: 1px solid var(--table-stroke) !important; */
+	border-right: none !important;
+}
+.ag-pinned-right-header {
+	/* border-left: 1px solid var(--table-stroke) !important; */
+	border-left: none !important;
+}
+.ag-header-viewport .ag-header-row.ag-header-row-column,
+.ag-header-viewport .ag-header-row.ag-header-row-column-group {
+  width: 100% !important;
+  background-color: var(--table-header-bg);
+}
+.ag-header-viewport .ag-header-row .ag-header-cell:last-child,
+.ag-header-viewport .ag-header-row .ag-header-group-cell:last-child {
+  border-right: none !important;
+  width: auto !important;
+  right: 0px !important;
+}
+:not(.ag-pinned-left-header) > .ag-header-row .ag-header-cell:last-child > .ag-header-cell-resize,
+:not(.ag-pinned-left-header) > .ag-header-row .ag-header-group-cell:last-child > .ag-header-cell-resize {
+  display: none !important;
+}
+.ag-row .ag-cell:last-child {
+  border-right: none !important;
+}
+
+/* 24.02.13 수정(전체 그리드 border 관련) */
+/* 틀고정 css 대상 변경 */
+.ag-cell.ag-cell-first-right-pinned:not(.ag-cell-range-left):not(.ag-cell-range-single-cell) {
+	border-left: 1px solid var(--table-stroke) !important;
+	/* border-left: none !important; */
+}
+.ag-cell.ag-cell-last-left-pinned:not(.ag-cell-range-right):not(.ag-cell-range-single-cell) {
+	border-right: 1px solid var(--table-stroke) !important;
+	/* border-right: none !important; */
+}
+/* .ag-pinned-left-cols-container:has(.ag-row) + .ag-center-cols-clipper:has(.ag-center-cols-viewport .ag-center-cols-container .ag-row) .ag-center-cols-container {
+  border-left: 1px solid var(--table-stroke) !important;
+} */
+.ag-center-cols-container {
+  /* min-width: 100%; */
+}
+.ag-horizontal-left-spacer {
+  overflow: hidden !important;
+  border: none !important;
+}
+/* 틀고정 css 대상 변경 */
+
+/* 2024-02-22 해더 스타일 변경 */
+.ag-header-cell-text {
+  text-overflow: clip !important;
+  overflow: visible !important;
+  white-space: pre-wrap !important;
+  width: auto;
+  text-align: center;
+}
+
+.ag-header-container .btn {
+	width: 100%;
+  height: 100%;
+	flex-basis: unset;
+}
+
+.h-60 .ag-row {
+  min-height: 60px !important;
+}
+.h-80 .ag-row {
+  min-height: 80px !important;
+}
+.h-60 .ag-cell > *:not(button) {
+  min-height: 60px !important;
+}
+.h-80 .ag-cell > *:not(button) {
+  min-height: 80px !important;
+}
+div[class*="h-"] .ag-cell {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+div[class*="h-"] .ag-cell > *:not(button) {
+  flex-wrap: wrap;
+  justify-content: center;
+}
+div[class*="h-"] .ag-cell > button {
+  max-width: 90%;
+}
+.ag-cell .btn.small {
+  flex-basis: auto;
+  width: 90%;
+  height: 30px;
+  font-size: 1.2rem;
+}
+.ag-cell .btn.small .icon {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
+/* 버튼형 헤더 그리드 */
+.ag-theme-balham.btn-header .ag-header {
+  border: 0 none !important;
+  /* background: none; */
+}
+.ag-theme-balham.btn-header .ag-header-cell {
+  border-right: 0 none;
+}
+.ag-theme-balham.btn-header .ag-header-cell-comp-wrapper > .btn {
+  width: calc(100% - 5px);
+  height: calc(100% - 5px);
+  margin: 0 auto;
+}
+
+/* 버튼형 헤더 그리드에서 일부에만 스트로크 필요한 경우 */
+.ag-theme-balham.btn-header .ag-ltr .ag-cell:has(.border-right) {
+  border-right: 1px solid var(--table-stroke);
+}
+.ag-theme-balham.btn-header .ag-ltr:has(.border-right) .ag-cell ~ .ag-cell:empty {
+  border-right: 1px solid var(--table-stroke);
+}
+
+.ag-paging-panel {
+  justify-content: center; /* 가로 중앙 정렬 */
+  align-items: center; /* 세로 중앙 정렬 */
+  bottom: 0; /* 하단에 위치 */
+  width: 100%; /* 너비 100% */
+}
+
+/* 버튼형 헤더 컬럼 전체에 스트로크 적용 시 */
+/* .ag-theme-balham.btn-header .ag-ltr .ag-cell {
+  border-right: 1px solid var(--table-stroke);
+} */

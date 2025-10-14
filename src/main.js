@@ -3,6 +3,7 @@ import { createPinia } from 'pinia'
 import piniaPersist from 'pinia-plugin-persistedstate'
 import App from './App.vue'
 import router from './router'
+import '@/assets/css/common.css'
 
 import { AgGridVue } from "ag-grid-vue3";  // the AG Grid Vue Component
 

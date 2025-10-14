@@ -1,0 +1,54 @@
+.profile-wrap {
+	display: flex;
+	align-items: center;
+	gap: 0 10px;
+}
+.profile-wrap .profile-img {
+	width: 34px;
+	height: 34px;
+	border-radius: 50%;
+	background: #17337B;
+	overflow: hidden;
+}
+.profile-wrap .profile-img img {
+	width: 100%;
+	height: 100%;
+}
+.profile-wrap .profile-img img[src=""] {
+	display: none;
+}
+.profile-wrap .profile-text {
+	display: flex;
+	align-items: center;
+	gap: 0 10px;
+}
+.profile-wrap .profile-text .department {
+	color: #919191;
+	font-size: 1.2rem;
+}
+.profile-wrap .profile-text .department > span {
+	position: relative;
+	padding-right: 17px;
+}
+.profile-wrap .profile-text .department > span:last-child {
+	padding-right: 0;
+}
+.profile-wrap .profile-text .department > span::after {
+	content: '';
+	display: block;
+	position: absolute;
+	top: 50%;
+	right: 6px;
+	width: 1px;
+	height: 10px;
+	background-color: #919191;
+	transform: translateY(-50%);
+}
+.profile-wrap .profile-text .department > span:last-child::after {
+	display: none;
+}
+.profile-wrap .profile-text .name {
+	color: var(--black);
+	font-weight: 700;
+	font-size: 1.4rem;
+}

@@ -1,0 +1,94 @@
+.page-title-wrap {
+	position: relative;
+	padding-bottom: 1.2rem;
+}
+.page-title-wrap .title-area {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+.page-title-wrap .page-title {
+	width: fit-content;
+	margin-right: 10px;
+	color: var(--black);
+	font-weight: 700;
+	font-size: 2rem;
+	line-height: 2.8rem;
+}
+.content-box:has(.tab-menu) .page-title-wrap .title-area {
+	display: none;
+}
+
+.status-wrap {
+	margin-left: auto;
+	padding-right: 24px;
+}
+.status-wrap .status-list-wrap {
+	display: flex;
+	align-items: stretch;
+	/* 2024-02-14 고객 수정사항 친절하게 반영 */
+	background-color: transparent;
+}
+.status-wrap .status-list-wrap .status-list {
+	position: relative;
+	padding: 12px 12px 10px 12px;
+	/* 2024-02-14 고객 수정사항 친절하게 반영 */
+	width: 120px;
+	border-radius: 12px;
+}
+.status-wrap .status-list-wrap .status-list::after {
+	content: '';
+	display: block;
+	position: absolute;
+	top: 50%;
+	right: 0;
+	width: 1px;
+	height: 70px;
+	/* 2024-02-14 고객 수정사항 친절하게 반영 */
+	/* background-color: var(--table-stroke); */
+	background-color: var(--bg-color);
+	transform: translateY(-50%);
+}
+.status-wrap .status-list-wrap .status-list:last-child::after {
+	display: none;
+}
+.status-wrap .status-list .status {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	height: 100%;
+}
+.status-wrap .status-list .status-text {
+	font-size: 1.2rem;
+	margin-bottom: 4px;
+	color: var(--white);
+}
+.status-wrap .status-list .rows {
+	font-size: 1.8rem;
+	text-align: right;
+	color: var(--white);
+	line-height: 120%;
+	text-decoration: underline;
+}
+.status-wrap:has(.status-list.active) .status-list:not(.active) .status-text, 
+.status-wrap:has(.status-list.active) .status-list:not(.active) .rows
+{
+	opacity: 0.6;
+}
+/* 2024-02-14 고객 수정사항 친절하게 반영 */
+/* .status-wrap .status-list.active .status-text,
+.status-wrap .status-list.active .rows {
+	opacity: 0.6;
+} */
+.status-wrap .status-list .num {
+	font-size: 2.6rem;
+	font-weight: 700;
+}
+
+/* 2024-02-14 고객 수정사항 친절하게 반영 */
+/* .status-wrap .status-list-wrap .status-list:first-child {
+	border-radius: 12px 0 0 12px;
+}
+.status-wrap .status-list-wrap .status-list:last-child {
+	border-radius: 0 12px 12px 0;
+} */

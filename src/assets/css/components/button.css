@@ -1,0 +1,236 @@
+/* button */
+.btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0 2px;
+    flex-shrink: 0;
+    position: relative;
+	text-decoration: none;
+	min-width: 100px;
+	height: 36px;
+    padding: 7px 15px;
+	background: var(--main-color);
+    border: 1px solid transparent;
+	border-radius: 6px;
+	color: #fff;
+    font-family: "Pretendard";
+	font-size: 1.4rem;
+    font-weight: 500;
+    cursor: pointer;
+    vertical-align: middle;
+    text-align: center;
+}
+.btn:has(.icon) {
+    gap: 0 8px;
+}
+.btn:disabled{
+    background-color: gray;
+    cursor: default
+}
+/* 2024-02-19 추가 */
+.btn:has(.icon):disabled {
+    background: rgba(242, 242, 242, 0.9);
+    color: #CCCCCC;
+}
+.btn:has(.icon):disabled:hover {
+    border: 1px solid var(--mediumgray);
+}
+.btn:has(.icon):disabled .icon {
+    opacity: 0.5;
+}
+
+.btn.point {
+    background: #FFECEC;
+    color: var(--red);
+}
+.btn.point:disabled {
+    background: rgba(255, 242, 242, 0.9);
+    color: #CCCCCC;
+}
+
+.btn.small {
+    flex-basis: 100px;
+    flex-shrink: 0;
+    width: 100px;
+}
+.btn.medium {
+    flex-basis: 160px;
+    flex-shrink: 0;
+    width: 160px;
+}
+.btn.w-auto {
+	flex-basis: auto;
+    flex-shrink: 0;
+	width: max-content;
+	padding: 0 10px;
+}
+
+.btn.sub {
+    border: 1px solid var(--gray-03);
+    background: #fff;
+    color: var(--gray);
+}
+.btn.sub:disabled {
+    background: rgba(242, 242, 242, 0.9);
+    color: #CCCCCC;
+    border: 1px solid #D9D9D9;
+}
+.btn.gray {
+    border: 1px solid #CCC;
+    background: #F8F8F8;
+    color: var(--black);
+}
+
+.btn.opa-0 {
+    background: transparent;
+}
+
+.btn.bold {
+    background: var(--main-dark-color);
+    color: #ffffff;
+}
+.btn.bold:disabled {
+    opacity: 60%;
+}
+.btn.func {
+    min-width: 60px;
+    height: 24px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background-color: #F8F8F8;
+    color: var(--black);
+    font-size: 12px;
+}
+.btn.sub.icon-btn {
+    flex-basis: 44px;
+    width: 44px;
+    min-width: auto;
+    height: 36px;
+}
+
+/* 파일 업로드 버튼 */
+.btn-filebox .filebox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 70px;
+    height: 26px;
+    border-radius: 4px;
+    background: var(--thead-color);
+    border: 1px solid var(--mediumgray);
+    font-size: 1.3rem;
+    color: var(--gray-03);
+    cursor: pointer;
+    margin: auto;
+}
+.btn-filebox input[type="file"] {
+    display: none;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    visibility: hidden;
+}
+.btn-filebox.disabled .filebox {
+    background: rgba(242, 242, 242, 0.9);
+    color: #CCCCCC;
+}
+
+/* 다운로드 버튼 */
+.btn.download {
+    background-color: rgba(29, 111, 66, 0.04);
+    border-color: #1D6F42;
+    color: #1D6F42;
+}
+.btn.download.blue {
+    border: 1px solid #5B89FF;
+    background-color: rgba(91, 137, 255, 0.04);
+    color: #5B89FF;
+}
+.btn.download.red {
+    border: 1px solid #B30C00;
+    background-color: rgba(179, 12, 0, 0.04);
+    color: #B30C00;
+}
+.btn.download.disabled {
+    background: rgba(242, 242, 242, 0.9);
+    color: #CCCCCC;
+}
+.btn.upload {
+    background-color: rgba(179, 12, 0, 0.04);
+    border-color: #B30C00;
+    color: #B30C00;
+}
+.btn.upload.disabled {
+    background: rgba(242, 242, 242, 0.9);
+    color: #CCCCCC;
+}
+.btn.import {
+    width: 80px;
+}
+
+/* 버튼 영역 내 텍스트*/
+.btn-next-text {
+    color:#616161;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 100%;
+    letter-spacing: -0.26px;
+}
+
+.btn-delete {
+    position: relative;
+    width: 14px;
+    height: 14px;
+    border: 1px solid var(--gray-02);
+    border-radius: 50%;
+    font-size: 0;
+}
+.btn-delete:hover {
+    border-color: var(--gray);
+}
+.btn-delete::before,
+.btn-delete::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    background-color: var(--gray-02);
+    width: 1px;
+    height: 8px;
+}
+.btn-delete:hover::before,
+.btn-delete:hover::after {
+    background-color: var(--gray);
+}
+.btn-delete::after {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+.btn-delete::before {
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.period-btn-wrap {
+    display: flex;
+}
+.btn.period-btn {
+	min-width: 40px;
+    border: 0 none;
+    border-radius: 0;
+    border-top: 1px solid var(--gray-03);
+    border-bottom: 1px solid var(--gray-03);
+    border-right: 1px solid var(--gray-03);
+    background-color: #fff;
+    color: var(--gray-03);
+}
+.btn.period-btn:hover {
+    background-color: var(--sub-color);
+    color: #fff;
+}
+.period-btn:first-child {
+    border-left: 1px solid var(--gray-03);
+    border-radius: 6px 0 0 6px;
+}
+.period-btn:last-child {
+    border-radius: 0 6px 6px 0;
+}

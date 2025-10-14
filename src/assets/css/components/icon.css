@@ -1,0 +1,235 @@
+/* 아이콘 */
+.icon {
+	display: inline-block;
+	width: 1.6rem;
+	height: 1.6rem;
+	font-size: 0;
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-image: url('../../images/icon/menu-folder.svg');
+}
+.btn .icon,
+.ui-btn .icon {
+	margin-left: -3px;
+}
+button.icon {
+	border: none;
+	border-radius: 0;
+	background-color: transparent;
+}
+.icon:hover {
+	background-color: transparent;
+}
+.icon.indent {
+	width: 1.2rem;
+	height: 1.2rem;
+	margin-right: 8px;
+	background-image: url('../../images/icon/icon-indent.png');
+}
+.icon.close {
+	width: 2.4rem;
+	height: 2.4rem;	
+	background-image: url('../../images/icon/icon-close.png');
+	border: none;
+}
+.icon.delete {
+	width: 2rem;
+	height: 2rem;
+	background-image: url('../../images/icon/icon-delete.png');
+}
+.icon.word {
+	width: 2rem;
+	height: 2rem;
+	background-image: url('../../images/icon/icon-word.png');
+}
+.icon.excel {
+	width: 2rem;
+	height: 2rem;
+	background-image: url('../../images/icon/icon-excel.png');
+}
+.icon.ie {
+	width: 2rem;
+	height: 2rem;
+	background-image: url('../../images/icon/icon-ie.png');
+}
+.icon.jpg {
+	width: 2rem;
+	height: 2rem;
+	background-image: url('../../images/icon/icon-jpg.png');
+}
+.icon.pdf {
+	width: 2rem;
+	height: 2rem;
+	background-image: url('../../images/icon/icon-pdf.png');
+}
+.icon.png {
+	width: 2rem;
+	height: 2rem;
+	background-image: url('../../images/icon/icon-png.png');
+}
+.icon.ppt {
+	width: 2rem;
+	height: 2rem;
+	background-image: url('../../images/icon/icon-ppt.png');
+}
+.icon.file {
+	width: 2rem;
+	height: 2rem;
+	background-image: url('../../images/icon/icon-file.png');
+}
+.icon.file-blue {
+	width: 2rem;
+	height: 2rem;
+	background-image: url('../../images/icon/icon-file-blue.png');
+}
+.icon.clipboard{
+	width: 2rem;
+	height: 2rem;
+	background-image: url('../../images/icon/icon-clipboard.png');
+}
+.icon.clipboard.blue {
+    width: 2rem;
+    height: 2rem;
+	background-image: url('../../images/icon/icon-clipboard-blue.png');
+}
+.icon.edit {
+	width: 2rem;
+	height: 2rem;
+	background-image: url('../../images/icon/icon-edit.png');
+}
+.icon.calendar {
+	width: 1.4rem;
+	height: 1.4rem;
+	background-image: url('../../images/icon/icon-calendar.png');
+}
+.icon.ui-accordion-header  {
+    width: 2.4rem;
+    height: 2.4rem;
+    font-size: 0;
+    background-size: cover;
+    background-repeat: no-repeat;
+	background-image: url('../../images/icon/icon-arrow-select.png');
+}
+.icon.prev {
+	width: 1.4rem;
+	height: 1.4rem;
+    background-size: cover;
+    background-repeat: no-repeat;
+	background-image: url('../../images/icon/icon-arrow-blue.svg');
+}
+.icon.next {
+	width: 1.4rem;
+	height: 1.4rem;
+    background-size: cover;
+    background-repeat: no-repeat;
+	background-image: url('../../images/icon/icon-arrow-blue.svg');
+	margin-left: 0;
+	margin-right: -10px;
+	transform: rotate(180deg);
+}
+.icon.circle-arrow {
+	width: 3.2rem;
+	height: 3.2rem;
+	font-size: 0;
+	background-image: url('../../images/icon/circle-arrow-off.png');
+}
+.icon.circle-arrow.on {
+	background-image: url('../../images/icon/circle-arrow-on.png');
+}
+.icon.circle-arrow.next {
+	transform: rotate(180deg);
+}
+.icon.circle-arrow-gray {
+	width: 3.6rem;
+	height: 3.6rem;
+	font-size: 0;
+	background-image: url('../../images/icon/circle-arrow-gray.svg');
+}
+.icon.tooltip {
+	width: 2.4rem;
+	height: 2.4rem;
+	background-image: url('../../images/icon/icon-tooltip.svg');
+}
+.icon.arrow {
+	width: 1.6rem;
+	height: 1.6rem;
+    background-image: url('../../images/icon/menu-arrow-bk.svg');
+}
+.icon.check-red {
+	width: 1.4rem;
+	height: 1.4rem;
+	background-image: url('../../images/icon/icon-check-red.png');
+}
+.icon-dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 10px;
+}
+.icon-dot.color-blue {
+	background: #00559E;
+}
+.icon-dot.color-green {
+	background: #31B104;
+}
+.icon-dot.color-red {
+	background: #F51E5E;
+}
+.icon.check {
+	width: 2.4rem;
+	height: 2.4rem;
+	background-image: url('../../images/icon/checkbox.png');
+}
+.icon.search {
+	width: 1.6rem;
+	height: 1.6rem;
+	background-image: url('../../images/icon/search.png');
+}
+.icon.upload {
+	width: 2rem;
+	height: 2rem;
+	background-image: url('../../images/icon/icon-upload.png');
+}
+.icon.download {
+	width: 2rem;
+	height: 2rem;
+	background-image: url('../../images/icon/icon-download.png');
+}
+.icon.paste {
+    width: 2rem;
+    height: 2rem;
+    background-image: url('../../images/icon/icon-paste.png');
+}
+.icon.status-ok {
+	width: 2rem;
+	height: 2rem;
+    background-image: url('../../images/icon/icon-status-ok.png');
+}
+.icon.status-no {
+	width: 2rem;
+	height: 2rem;
+    background-image: url('../../images/icon/icon-status-no.png');
+}
+.icon.setting {
+	width: 2rem;
+	height: 2rem;
+	background-image: url('../../images/icon/icon-setting.png');
+}
+.icon.logout {
+	width: 2rem;
+	height: 2rem;
+	background-image: url('../../images/icon/icon-logout.png');
+}
+.icon.upward {
+	width: 2rem;
+	height: 2rem;
+	background-image: url('../../images/icon/icon-arrow-upward.svg');
+}
+.icon.downward {
+	width: 2rem;
+	height: 2rem;
+	background-image: url('../../images/icon/icon-arrow-downward.svg');
+}
+/* jui reset */
+.jui [class*="icon-"]::before {
+	font-size: 1.6rem;
+}

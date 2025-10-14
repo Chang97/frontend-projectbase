@@ -1,0 +1,127 @@
+:root {
+	--row-status-in-progress: rgb(221, 235, 247);
+	--row-status-rejected: rgb(255, 204, 255);
+	--row-status-submit: rgb(255, 240, 204);
+	--row-status-approved: rgb(197, 224, 180);
+	--row-status-end: rgb(242, 242, 242);
+}
+
+.cell-selected-bg {
+	background-image: url("../images/selected.png");
+}
+
+.year-input input {
+	max-width: 65px;
+	min-width: 65px;
+	text-align: center;
+	/* background-color: white; */
+	/* color: lightgrey; */
+}
+
+.label.font-16 {
+	font-size: 1.6rem;
+}
+.content-count .label {
+	font-weight: 700;
+}
+
+.cell-status-in-progress {
+	background-color: var(--row-status-in-progress) !important;
+}
+.cell-status-rejected {
+	background-color: var(--row-status-rejected) !important;
+}
+.cell-status-submit {
+	background-color: var(--row-status-submit) !important;
+}
+.cell-status-approved {
+	background-color: var(--row-status-approved) !important;
+}
+.cell-status-end {
+	background-color: var(--row-status-end) !important;
+}
+
+.ag-theme-balham.bottom-grid {
+	--ag-row-height: 28px;
+  --ag-selected-row-background-color: rgba(0, 0, 0, 0);
+  --ag-row-hover-color: rgba(0, 0, 0, 0);
+}
+
+.bottom-grid .ag-header, .bottom-grid .ag-header-cell {
+	display: none !important;
+}
+
+.bottom-grid .ag-root-wrapper.ag-layout-normal {
+  border-top: 0;
+}
+
+/* 2024-02-14 진짜 친절하게 수정~ */
+.bottom-grid .ag-cell {
+	/* font-size: 12px;
+  font-weight: 700; */
+	/* header랑 똑같이 만들어달라는 수정사항 있음 */
+  color: var(--table-gray);
+	font-size: 13px;
+  font-weight: 700;
+	background-color: var(--ag-header-background-color);
+}
+
+.bottom-grid .ag-body-vertical-scroll-viewport {
+	overflow-y: hidden;
+}
+
+.ag-theme-balham:has(.ag-body-vertical-scroll.ag-hidden) + .ag-theme-balham.bottom-grid .ag-body-vertical-scroll {
+	display: none !important;
+}
+
+.ag-theme-balham:has(.ag-body-vertical-scroll.ag-hidden) + .ag-theme-balham.bottom-grid .ag-horizontal-right-spacer.ag-scroller-corner {
+	display: none !important;
+}
+
+.ag-theme-balham:has(.ag-body-vertical-scroll:not(.ag-hidden)) + .ag-theme-balham.bottom-grid .ag-body-vertical-scroll.ag-hidden {
+	min-width: 15px !important;
+	display: block !important;
+}
+
+.ag-theme-balham:has(.ag-body-vertical-scroll:not(.ag-hidden)) + .ag-theme-balham.bottom-grid .ag-horizontal-right-spacer.ag-scroller-corner {
+	min-width: 15px !important;
+}
+
+.emissionSource.grid-search-box {
+	padding: 0 5px; 
+	display: flex;
+}
+
+.emissionSource.grid-input-box {
+	padding: 0 5px; 
+	display: flex;
+}
+.emissionSource.grid-input-box input {
+	padding: 0 7px; 
+	display: flex;
+}
+
+.emissionSource input {
+	background-color: #fff; 
+	text-overflow: ellipsis;
+}
+
+.ignore-focus {
+	pointer-events: none;
+}
+
+.none-user-select {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+
+}
+
+/* input {
+	pointer-events: none;
+}
+
+select {
+	pointer-events: none;
+} */

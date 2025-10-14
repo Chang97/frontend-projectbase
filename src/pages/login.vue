@@ -76,6 +76,8 @@ const onSubmit = async () => {
       password: password.value
     })
 
+    console.log("🚀 ~ onSubmit ~ data:", data)
+
     // 공통 세션 관리 로직은 store로 위임한다.
     const userInfo = data?.user ?? data ?? {}
     const resolvedLoginId = userInfo.loginId ?? data?.loginId ?? id.value
@@ -93,8 +95,6 @@ const onSubmit = async () => {
         user: userInfo
       }
     )
-
-    console.log(data)
 
     router.replace({ path: postLoginPath })
   } catch (error) {

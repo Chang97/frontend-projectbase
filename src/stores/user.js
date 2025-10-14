@@ -30,6 +30,10 @@ export const useUserStore = defineStore(
     const menuTree = ref([])
     const accessibleMenus = ref([])
     const sessionChecked = ref(false) // /api/auth/me 호출을 통해 세션을 확인한 적이 있는지 여부
+    const menuList = ref([])
+    const leafMenuList = ref([])
+    const currentMenu = ref(null)
+    const path = ref([])
 
     const isAuthenticated = computed(() => Boolean(userFieldRefs.loginId.value || userFieldRefs.userId.value))
 
@@ -99,6 +103,9 @@ export const useUserStore = defineStore(
         accessibleMenus.value = []
       }
 
+      rebuildLegacyMenus(menuTree.value, accessibleMenus.value)
+      resolveCurrentMenu(window?.location?.pathname ?? '')
+
       if (!userFieldRefs.loginId.value && (payload.loginId || fallbackLoginId)) {
         userFieldRefs.loginId.value = payload.loginId ?? fallbackLoginId ?? ''
       }
@@ -120,6 +127,10 @@ export const useUserStore = defineStore(
       resetUserFields()
       menuTree.value = []
       accessibleMenus.value = []
+      menuList.value = []
+      leafMenuList.value = []
+      currentMenu.value = null
+      path.value = []
       sessionChecked.value = true // 이후 라우팅에서 다시 /me를 호출하지 않도록 체크 완료 플래그 유지
     }
 
@@ -131,7 +142,144 @@ export const useUserStore = defineStore(
       resetUserFields()
       menuTree.value = []
       accessibleMenus.value = []
+      menuList.value = []
+      leafMenuList.value = []
+      currentMenu.value = null
+      path.value = []
       sessionChecked.value = false // persisted 값도 초기화되어 새 탭에서 다시 세션 체크를 수행
+    }
+
+    const rebuildLegacyMenus = (tree, flat) => {
+      menuList.value = []
+      leafMenuList.value = []
+
+      const assignLegacyAliases = (node) => {
+        node.MENU_ID = node.menuId
+        node.MENU_CD = node.menuCode
+        node.MENU_NM = node.menuName
+        node.URL = node.url
+        node.SRT = node.srt
+        node.USE_YN = node.useYn
+        node.LVL = node.lvl
+      }
+
+      const buildFromTree = (nodes, parentId = null, depth = 0) => {
+        if (!Array.isArray(nodes)) {
+          return []
+        }
+        return nodes.map((node) => {
+          const normalized = {
+            menuId: node?.menuId ?? null,
+            menuCode: node?.menuCode ?? '',
+            menuName: node?.menuName ?? '',
+            menuCn: node?.menuCn ?? '',
+            url: node?.url ?? '',
+            srt: node?.srt ?? null,
+            useYn: node?.useYn ?? true,
+            lvl: node?.lvl ?? depth,
+            upperMenuId: parentId,
+            children: []
+          }
+          assignLegacyAliases(normalized)
+          normalized.children = buildFromTree(node?.children ?? [], normalized.menuId, depth + 1)
+          if (!normalized.children.length && normalized.url) {
+            leafMenuList.value.push(normalized)
+          }
+          return normalized
+        })
+      }
+
+      if (Array.isArray(tree) && tree.length) {
+        menuList.value = buildFromTree(tree)
+        return
+      }
+
+      if (!Array.isArray(flat) || !flat.length) {
+        return
+      }
+
+      const map = new Map()
+      flat.forEach((item) => {
+        if (!item || item.menuId == null) return
+        const normalized = {
+          menuId: item.menuId,
+          menuCode: item.menuCode ?? '',
+          menuName: item.menuName ?? '',
+          menuCn: item.menuCn ?? '',
+          url: item.url ?? '',
+          srt: item.srt ?? null,
+          useYn: item.useYn ?? true,
+          lvl: item.lvl ?? null,
+          upperMenuId: item.upperMenuId ?? null,
+          children: []
+        }
+        assignLegacyAliases(normalized)
+        map.set(normalized.menuId, normalized)
+      })
+
+      const roots = []
+      map.forEach((node) => {
+        const parentId = node.upperMenuId ?? null
+        if (parentId != null && map.has(parentId)) {
+          const parent = map.get(parentId)
+          parent.children.push(node)
+        } else {
+          roots.push(node)
+        }
+      })
+
+      const sortBySrt = (nodes) => {
+        nodes.sort((a, b) => (a.srt ?? 0) - (b.srt ?? 0))
+        nodes.forEach((child) => sortBySrt(child.children ?? []))
+      }
+
+      const assignDepth = (nodes, depth = 0, parentId = null) => {
+        nodes.forEach((node) => {
+          node.lvl = depth
+          node.LVL = depth
+          node.upperMenuId = parentId
+          node.children = node.children ?? []
+          if (!node.children.length && node.url) {
+            leafMenuList.value.push(node)
+          }
+          assignDepth(node.children, depth + 1, node.menuId)
+        })
+      }
+
+      sortBySrt(roots)
+      assignDepth(roots)
+      menuList.value = roots
+    }
+
+    const resolveCurrentMenu = (targetPath) => {
+      if (!targetPath) {
+        currentMenu.value = null
+        path.value = []
+        return
+      }
+
+      const search = (nodes, parents = []) => {
+        for (const node of nodes) {
+          const nextParents = [...parents, node]
+          if (node.url === targetPath || node.URL === targetPath) {
+            return nextParents
+          }
+          if (Array.isArray(node.children) && node.children.length > 0) {
+            const found = search(node.children, nextParents)
+            if (found) return found
+          }
+        }
+        return null
+      }
+
+      const chain = search(menuList.value, [])
+      if (chain) {
+        path.value = chain
+        currentMenu.value = chain[chain.length - 1]
+      } else {
+        path.value = []
+        currentMenu.value = null
+      }
     }
 
     return {
@@ -139,11 +287,16 @@ export const useUserStore = defineStore(
       menuTree,
       accessibleMenus,
       sessionChecked,
+      menuList,
+      leafMenuList,
+      currentMenu,
+      path,
       isAuthenticated,
       leafMenus,
       setSession,
       logout,
       markSessionChecked,
+      resolveCurrentMenu,
       $reset
     }
   },
@@ -158,6 +311,10 @@ export const useUserStore = defineStore(
             ...Object.keys(DEFAULT_USER_STATE),
             'menuTree',
             'accessibleMenus',
+            'menuList',
+            'leafMenuList',
+            'currentMenu',
+            'path',
             'sessionChecked' // 세션 체크 여부도 포함시켜 동일 탭에서는 재요청을 생략
           ]
         }

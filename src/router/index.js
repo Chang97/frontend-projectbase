@@ -1,35 +1,16 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router/auto'
+import { routes } from 'vue-router/auto-routes'
 import axios from '@/plugins/axios'
+import comm from '@/utils/comm'
 import { useUserStore } from '@/stores/user'
 
-const LOGIN_PATH = '/login'
-const UNAUTH_LANDING_PATH = import.meta.env.VITE_first_page || LOGIN_PATH
-const AUTH_LANDING_PATH = import.meta.env.VITE_home_page || '/main'
-
-const routes = [
-  {
-    path: '/',
-    name: 'index',
-    component: () => import('@/pages/index.vue')
-  },
-  {
-    path: LOGIN_PATH,
-    name: 'login',
-    component: () => import('@/pages/login.vue')
-  },
-  {
-    path: '/main',
-    name: 'main',
-    component: () => import('@/pages/main.vue')
-  }
-]
+const authExceptionPage = ['/', '/login', '/main']
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
   routes
 })
 
-// 중복 호출을 막기 위해 글로벌 프로미스를 사용한다.
 let sessionHydrationPromise = null
 
 const hydrateSessionIfNeeded = async () => {
@@ -68,6 +49,17 @@ const hydrateSessionIfNeeded = async () => {
 }
 
 router.beforeEach(async (to, from, next) => {
+  if (from.path === '/' && comm.getObjectLength(to.query) > 0) {
+    sessionStorage.setItem('_INIT_PARAM_', JSON.stringify(to.query))
+  }
+
+  if (!await comm.confirmDataModified()) {
+    next(false)
+    return
+  }
+
+  comm.resetDataListInView()
+
   const userStore = useUserStore()
   let authed = userStore.isAuthenticated
 
@@ -75,20 +67,48 @@ router.beforeEach(async (to, from, next) => {
     authed = await hydrateSessionIfNeeded()
   }
 
-  if (to.path === '/' || to.name === 'index') {
-    next({ path: authed ? AUTH_LANDING_PATH : UNAUTH_LANDING_PATH, replace: true })
+  const routeExists = Boolean(to?.matched?.length)
+  const isException = authExceptionPage.includes(to.path) || authExceptionPage.includes(to.name)
+
+  if (!routeExists || !to.name) {
+    comm.alert('존재하지 않는 페이지입니다.', 'Error')
+    next(false)
     return
   }
 
-  if (!authed && to.path !== LOGIN_PATH) {
-    next({ path: LOGIN_PATH, replace: true })
+  if (!isException) {
+    try {
+      const result = await axios({
+        url: '/main/main/isMenuAuthExists.do',
+        method: 'get',
+        params: { url: to.name }
+      })
+
+      if (result.data.isMenuAuthExists) {
+        next()
+      } else {
+        comm.alert('페이지에 접근할 권한이 없습니다.\n로그인 해주시기 바랍니다.', 'Error')
+        next({ path: '/' })
+      }
+    } catch (error) {
+      comm.alert('권한 확인 중 오류가 발생했습니다.', 'Error')
+      next(false)
+    }
     return
   }
 
-  if (authed && to.path === LOGIN_PATH) {
-    next({ path: AUTH_LANDING_PATH, replace: true })
+  if (!authed && to.path !== '/login') {
+    next({ path: '/login', replace: true })
     return
   }
+
+  if (authed && to.path === '/login') {
+    next({ path: '/main', replace: true })
+    return
+  }
+
+  const store = useUserStore()
+  store.resolveCurrentMenu?.(to.path)
 
   next()
 })
