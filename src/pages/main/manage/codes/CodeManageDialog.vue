@@ -235,24 +235,20 @@ async function saveCdInfo() {
     useYn: popupData.value.useYn === true || popupData.value.useYn === 'Y'
   }
 
-  try {
-    let response
-    if (isRegPage.value) {
-      response = await axios.post('/api/codes', payload)
-    } else {
-      if (!popupData.value.codeId) {
-        return comm.alert('코드 정보가 올바르지 않습니다.')
-      }
-      response = await axios.put(`/api/codes/${popupData.value.codeId}`, payload)
+  let response
+  if (isRegPage.value) {
+    response = await axios.post('/api/codes', payload)
+  } else {
+    if (!popupData.value.codeId) {
+      return comm.alert('코드 정보가 올바르지 않습니다.')
     }
-
-    const result = response?.data ?? payload
-    await comm.alert('저장되었습니다.')
-    emit('callback')
-    close()
-  } catch(err) {
-    comm.alert('error')
+    response = await axios.put(`/api/codes/${popupData.value.codeId}`, payload)
   }
+
+  const result = response?.data ?? payload
+  await comm.alert('저장되었습니다.')
+  emit('callback')
+  close()
 }
 
 async function onChangeCdGrp(event, idx) {

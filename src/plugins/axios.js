@@ -3,6 +3,7 @@ import qs from 'qs'
 
 import router from '@/router'
 import { useUserStore } from '@/stores/user'
+import comm from '@/utils/comm'
 
 const axiosConfig = {
   // baseURL: '/api',
@@ -117,6 +118,7 @@ apiClient.interceptors.response.use(
     return response
   },
   async (error) => {
+    console.log("🚀 ~ error:", error)
     const originalRequest = error?.config
     const status = error?.response?.status
     const userStore = useUserStore()
@@ -136,8 +138,7 @@ apiClient.interceptors.response.use(
     }
 
     const errmsg = error?.response?.data?.__errmsg__ ?? 'error'
-    const msgVar = error?.response?.data?.msgargs
-    alert({ msgKey: errmsg, msgVar: msgVar }, 'Error')
+    comm.alert(errmsg, 'Error')
 
     if (status === 401 && !isRefreshRequest) {
       userStore.logout()
