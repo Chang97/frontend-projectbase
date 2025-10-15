@@ -1,11 +1,11 @@
 <template>
   <div style="text-align: center;">
-    <pt-select :items="params.comboList.items" v-model="params.data[params.colDef.field]"></pt-select>
+    <select :items="params.comboList.items" v-model="params.data[params.colDef.field]"></select>
   </div>
 </template>
 
 <script setup>
-import PtSelect from "@/components/common/PtSelect.vue";
+import Select from "@/components/common/Select.vue";
 const props = defineProps({
   params: Object
 })

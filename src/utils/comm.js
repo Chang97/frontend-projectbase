@@ -340,31 +340,6 @@ export default {
       return str
     }
   },
-  /**
-   * 템플릿 엑셀다운로드
-   * 
-   * ex) comm.downloadExcel('/system/b/a/BA01/downloadExcel.do', param)
-   * 
-   * ex) param["columnNames"] = arrColumnNames.join(","); comm.downloadExcel('/system/b/a/BA01/downloadExcel.do', param);
-   * @param {*} url 
-   * @param {*} cond 넘길 파라메터 Object. 추가로 columnNames(Array)를 담으면, 엑셀에 바인딩할 Column들을 지정할 수 있음
-   */
-  downloadExcel(url, cond) {
-    let param;
-    if (isPlainObject(url)) {
-      param = url;
-    } else {
-      param = {
-        url: url,
-        cond: cond
-      }
-    }
-    location.href =
-      import.meta.env.VITE_axios_baseURL +
-      param.url + "?" +
-      objectToQueryString(param.cond)
-    ;
-  },
 
   /**
    * 첨부파일 목록 배열로 조회

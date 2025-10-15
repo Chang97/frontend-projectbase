@@ -15,7 +15,6 @@
       <GridArea :selectedCnt="rowData.length">
         <template v-slot:buttons>
           <button type="button" class="btn" @click="openRegister">등록</button>
-          <button type="button" class="btn" @click="save">저장</button>
         </template>
         <ag-grid-vue 
           class="ag-theme-balham"
@@ -33,18 +32,19 @@
     <!-- 그리드 영역 -->
   </div>
 
-  <!-- <MngSysCodePopup01 ref="dialog" @callback="callbackPopup"></MngSysCodePopup01> -->
+  <MngSysCodePopup01 ref="dialog" @callback="search"></MngSysCodePopup01>
 </template>
 
 <script setup>
 import { ref, onMounted, nextTick, inject } from 'vue'
-// import MngSysCodePopup01 from './MngSysCodePopup01.vue'
+import MngSysCodePopup01 from './CodeManageDialog.vue'
 import GridArea from '@/components/common/GridArea.vue'
 import comm from '@/utils/comm'
 import LinkRenderer from '@/components/cellRenderer/LinkRenderer.vue'
 import SearchBox from '@/components/common/SearchBox.vue'
 
 const axios = inject('axios')
+const dialog = ref()
 
 const condList = ref([
   [
@@ -74,10 +74,7 @@ const columnDefs = ref([
     cellRenderer: LinkRenderer,
     cellRendererParams: {
       click: (params) => {
-        let av_param = {
-          data: JSON.parse(JSON.stringify(params.data))
-        }
-        fn_openDetail(av_param)
+        openDetail(JSON.parse(JSON.stringify(params.data)))
       }
     },
   },
@@ -88,8 +85,6 @@ const columnDefs = ref([
   { headerName: '기타 2'     , field: 'etc2'   , width: 45   , cellStyle: { 'text-align': 'left' }, },
   { headerName: '기타 3'     , field: 'etc3'   , width: 45   , cellStyle: { 'text-align': 'left' }, },
   { headerName: '기타 4'     , field: 'etc4'   , width: 45   , cellStyle: { 'text-align': 'left' }, },
-  { headerName: "수정 일시", field: "updateDt", width: 70, cellStyle: {"text-align": "center" }, },
-  { headerName: "수정 ID", field: "updateId", width: 50, cellStyle: {"text-align": "center"}, },
 ])
 // 그리드 데이터
 const rowData = ref([])
@@ -97,8 +92,6 @@ const rowData = ref([])
 
 onMounted(async () => {
   comboList.value.useYn = await comm.selectCodeList({upperCode: 'YN', firstRow: '전체'})
-  console.log("🚀 ~ comboList.value.useYn:", comboList.value.useYn)
-  
   search()
 })
 
@@ -124,58 +117,31 @@ async function selectList() {
   await axios.get('/api/codes', {
     params
   }).then(res => {
-    console.log("🚀 ~ selectList ~ res:", res)
     rowData.value = (res.data || []).map(item => ({
       ...item,
       useYn: item.useYn === true ? 'Y' : item.useYn === false ? 'N' : item.useYn
     }))
   }).catch(res => {
-    alert('error')
+    comm.alert('error')
   })
 }
 
-// // 상세보기 : 그리드의 행 클릭
-// function fn_openDetail(av_param) {
-//   av_param.action = 'edit'
-//   dialog.value.open(av_param)
-// }
+// 상세보기 : 그리드의 행 클릭
+function openDetail(payload) {
+  let param = {
+    action: 'update',
+    id: payload.codeId
+  }
+  dialog.value.open(param)
+}
 
-// // [등록] : 등록 팝업창 호출
-// function openRegister() {
-//   // - Popup Open : @callbackPopup = callbackPopup
-//   // let action = 'create'
-//   let av_param = {
-//     'action': 'create'
-//   }
-//   dialog.value.open(av_param)
-// }
+// [등록] : 등록 팝업창 호출
+function openRegister() {
+  let param = {
+    'action': 'create'
+  }
+  dialog.value.open(param)
+}
 
-// // Popup의 CallBack 처리 : Popup의 [등록], [저장] 등의 이벤트 처리 후에 창이 닫히면서 호출
-// function callbackPopup(params) {
-//   let editData = params.data
-
-//   if (params.action === 'C') {
-//     comm.agGridAddRows(
-//       rowData.value,
-//       grdListTable.value,
-//       editData,
-//       'prepand'
-//     )
-//   } else {
-//     let updateRow = []
-    
-//     updateRow.push(editData)
-    
-//     if(updateRow.length > 0) {
-//       updateRow.forEach(row => {
-//         comm.agGridUpdateRow(
-//           rowData.value,
-//           grdListTable.value,
-//           row
-//         )
-//       })
-//     }
-//   }
-// }
 
 </script>

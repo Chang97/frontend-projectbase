@@ -12,6 +12,7 @@ import '@/assets/css/pages/card.css'
 import '@/assets/css/common-ams.css'
 import SelectCustom from "@/components/common/SelectCustom.vue"
 import FilteredSelect from "@/components/common/FilteredSelect.vue"
+import Dialog from "@/components/common/Dialog.vue"
 
 
 import { AgGridVue } from "ag-grid-vue3";  // the AG Grid Vue Component
@@ -31,6 +32,7 @@ app.use(router)
   .component("AgGridVue", AgGridVue)
   .component("Select", SelectCustom)
   .component("FilteredSelect", FilteredSelect)
+  .component("Dialog", Dialog)
 
 app.mount('#app')
 

@@ -35,11 +35,11 @@ const props = defineProps({
   items: Array,
   code: {
     type: String,
-    default: 'CD'
+    default: 'code'
   },
   name: {
     type: String,
-    default: 'CD_NM'
+    default: 'codeName'
   },
 })
 
