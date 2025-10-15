@@ -1,5 +1,6 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
+import { resolveMenuTarget } from '@/utils/menu'
 
 const DEFAULT_USER_STATE = {
   userId: null,
@@ -258,10 +259,31 @@ export const useUserStore = defineStore(
         return
       }
 
+      const normalizedTarget = typeof targetPath === 'string' && targetPath.length
+        ? (targetPath.startsWith('/') ? targetPath : `/${targetPath.replace(/^\/+/, '')}`)
+        : ''
+
       const search = (nodes, parents = []) => {
         for (const node of nodes) {
           const nextParents = [...parents, node]
-          if (node.url === targetPath || node.URL === targetPath) {
+          const resolvedPath = resolveMenuTarget(node)
+          const matches = [
+            node.url,
+            node.URL,
+            resolvedPath,
+            resolvedPath?.replace(/\.do$/i, '')
+          ].some((candidate) => {
+            if (typeof candidate !== 'string' || !candidate.length) {
+              return false
+            }
+            if (candidate === targetPath || candidate === normalizedTarget) {
+              return true
+            }
+            const prefixed = candidate.startsWith('/') ? candidate : `/${candidate.replace(/^\/+/, '')}`
+            return prefixed === normalizedTarget
+          })
+
+          if (matches) {
             return nextParents
           }
           if (Array.isArray(node.children) && node.children.length > 0) {

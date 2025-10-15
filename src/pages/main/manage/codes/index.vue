@@ -1,201 +1,181 @@
 <template>
-  <section class="content">
-    <div class="content-box gap-24">
-      <header class="flex-row space middle pb16">
-        <h2>공통 코드 관리</h2>
-        <div class="flex-row gap-8">
-          <button class="btn sub" type="button" @click="resetForm">신규</button>
-          <button class="btn" type="button" @click="submit" :disabled="saving">{{ editingId ? '수정' : '등록' }}</button>
-        </div>
-      </header>
+  <div class="flex-item flex-column">
+    <!-- 조회조건 영역 -->
+    <search-box 
+      v-model="cond"
+      :condList="condList"
+      :comboList="comboList"
+      @search="search"
+    >
+    </search-box>
+    <!-- 조회조건 영역 -->
 
-      <div class="flex-row gap-24 top">
-        <div class="list-container flex-item">
-          <div class="table-scroll">
-            <table class="list-table">
-              <thead>
-                <tr>
-                  <th scope="col">코드</th>
-                  <th scope="col">코드명</th>
-                  <th scope="col">상위 코드</th>
-                  <th scope="col">정렬</th>
-                  <th scope="col">사용 여부</th>
-                  <th scope="col">관리</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-if="!list.length">
-                  <td colspan="6">등록된 코드가 없습니다.</td>
-                </tr>
-                <tr v-for="item in list" :key="item.codeId" @click="edit(item)">
-                  <td>{{ item.code }}</td>
-                  <td>{{ item.codeName }}</td>
-                  <td>{{ item.upperCodeId ?? '-' }}</td>
-                  <td>{{ item.srt ?? '-' }}</td>
-                  <td>{{ item.useYn ? '사용' : '미사용' }}</td>
-                  <td>
-                    <div class="flex-row gap-8">
-                      <button class="btn func" type="button" @click.stop="edit(item)">수정</button>
-                      <button class="btn func" type="button" @click.stop="removeItem(item)">삭제</button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <aside class="flex-item-2">
-          <form class="flex-column gap-16" @submit.prevent="submit">
-            <h3 class="page-title">{{ editingId ? '코드 수정' : '코드 등록' }}</h3>
-            <div class="input-area">
-              <label class="label" for="code">코드 *</label>
-              <input id="code" v-model="form.code" type="text" required placeholder="CODE" />
-            </div>
-            <div class="input-area">
-              <label class="label" for="codeName">코드명 *</label>
-              <input id="codeName" v-model="form.codeName" type="text" required placeholder="코드명을 입력하세요" />
-            </div>
-            <div class="input-area">
-              <label class="label" for="upperCodeId">상위 코드 ID</label>
-              <input id="upperCodeId" v-model.number="form.upperCodeId" type="number" min="0" placeholder="숫자" />
-            </div>
-            <div class="input-area">
-              <label class="label" for="srt">정렬 순서</label>
-              <input id="srt" v-model.number="form.srt" type="number" min="0" />
-            </div>
-            <div class="input-area">
-              <label class="label">사용 여부</label>
-              <label class="toggle">
-                <input v-model="form.useYn" type="checkbox" />
-                <span>{{ form.useYn ? '사용' : '미사용' }}</span>
-              </label>
-            </div>
-            <div class="input-area">
-              <label class="label" for="description">설명</label>
-              <textarea id="description" v-model="form.description" rows="3" placeholder="코드 설명"></textarea>
-            </div>
-            <div class="flex-row gap-8">
-              <button class="btn" type="submit" :disabled="saving">{{ editingId ? '수정' : '등록' }}</button>
-              <button class="btn sub" type="button" @click="resetForm">초기화</button>
-            </div>
-          </form>
-        </aside>
-      </div>
+    <!-- 그리드 영역 -->
+    <div class="content">
+      <GridArea :selectedCnt="rowData.length">
+        <template v-slot:buttons>
+          <button type="button" class="btn" @click="openRegister">등록</button>
+          <button type="button" class="btn" @click="save">저장</button>
+        </template>
+        <ag-grid-vue 
+          class="ag-theme-balham"
+          :columnDefs="columnDefs"
+          :rowData="rowData"
+          rowSelection='none'
+          @firstDataRendered="comm.sizeColumnsToFit"
+          @gridSizeChanged="comm.sizeColumnsToFit"
+          @grid-ready="(params) => {
+            grdListTable = params.api
+          }">
+        </ag-grid-vue>
+      </GridArea>
     </div>
-  </section>
+    <!-- 그리드 영역 -->
+  </div>
+
+  <!-- <MngSysCodePopup01 ref="dialog" @callback="callbackPopup"></MngSysCodePopup01> -->
 </template>
 
 <script setup>
-import { inject, onMounted, reactive, ref } from 'vue'
+import { ref, onMounted, nextTick, inject } from 'vue'
+// import MngSysCodePopup01 from './MngSysCodePopup01.vue'
+import GridArea from '@/components/common/GridArea.vue'
 import comm from '@/utils/comm'
+import LinkRenderer from '@/components/cellRenderer/LinkRenderer.vue'
+import SearchBox from '@/components/common/SearchBox.vue'
 
 const axios = inject('axios')
 
-const list = ref([])
-const loading = ref(false)
-const saving = ref(false)
-const editingId = ref(null)
-const form = reactive({
-  upperCodeId: null,
-  code: '',
-  codeName: '',
-  description: '',
-  srt: null,
-  etc1: '',
-  etc2: '',
-  etc3: '',
-  etc4: '',
-  useYn: true
+const condList = ref([
+  [
+    {condName: '코드', condCode: 'codeName', type: 'text'},
+    {condName: '사용 여부', condCode: 'useYn', type: 'select', labelClass: 'small'},
+  ]
+])
+
+// 조회 조건
+const cond = ref({
+  codeName     : '',
+  useYn    : ''
 })
 
-const defaultForm = () => ({
-  upperCodeId: null,
-  code: '',
-  codeName: '',
-  description: '',
-  srt: null,
-  etc1: '',
-  etc2: '',
-  etc3: '',
-  etc4: '',
-  useYn: true
+// 검색조건 콤보 item list
+const comboList = ref({
+  useYn: [],
+  // AUTHOR_CD: []
 })
 
-const resetForm = () => {
-  Object.assign(form, defaultForm())
-  editingId.value = null
+// - 그리드 설정
+const grdListTable = ref()
+// - 그리드 컬럼 속성 정보
+const columnDefs = ref([
+  { headerName: '코드'      , field: 'code'     , width: 60  , cellStyle: { 'text-align': 'left' }},
+  { headerName: '코드명'    , field: 'codeName'  , width: 60  , cellStyle: { 'text-align': 'left' },
+    cellRenderer: LinkRenderer,
+    cellRendererParams: {
+      click: (params) => {
+        let av_param = {
+          data: JSON.parse(JSON.stringify(params.data))
+        }
+        fn_openDetail(av_param)
+      }
+    },
+  },
+  { headerName: '순서'      , field: 'srt'    , width: 40   , cellStyle: { 'text-align': 'center' }, },
+  { headerName: '사용여부'  , field: 'useYn' , width: 30   , cellStyle: { 'text-align': 'center' } ,},
+  { headerName: '경로'      , field: 'path'     , width: 140  , cellStyle: { 'text-align': 'left' } , },
+  { headerName: '기타 1'     , field: 'etc1'   , width: 45   , cellStyle: { 'text-align': 'left' }, },
+  { headerName: '기타 2'     , field: 'etc2'   , width: 45   , cellStyle: { 'text-align': 'left' }, },
+  { headerName: '기타 3'     , field: 'etc3'   , width: 45   , cellStyle: { 'text-align': 'left' }, },
+  { headerName: '기타 4'     , field: 'etc4'   , width: 45   , cellStyle: { 'text-align': 'left' }, },
+  { headerName: "수정 일시", field: "updateDt", width: 70, cellStyle: {"text-align": "center" }, },
+  { headerName: "수정 ID", field: "updateId", width: 50, cellStyle: {"text-align": "center"}, },
+])
+// 그리드 데이터
+const rowData = ref([])
+
+
+onMounted(async () => {
+  comboList.value.useYn = await comm.selectCodeList({upperCode: 'YN', firstRow: '전체'})
+  console.log("🚀 ~ comboList.value.useYn:", comboList.value.useYn)
+  
+  search()
+})
+
+// 검색 기능
+async function search() {
+  selectList()
 }
 
-const fetchList = async () => {
-  loading.value = true
-  try {
-    const { data } = await axios.get('/api/code')
-    list.value = data ?? []
-  } finally {
-    loading.value = false
+// [조회] : 그리드 조회
+async function selectList() {
+  // 1. 조회조건 체크
+
+  rowData.value = []
+
+  const params = {}
+  if (cond.value.codeName && cond.value.codeName.trim().length > 0) {
+    params.codeName = cond.value.codeName.trim()
   }
-}
+  if (cond.value.useYn) {
+    params.useYn = cond.value.useYn
+  }
 
-const edit = (item) => {
-  editingId.value = item.codeId
-  Object.assign(form, {
-    upperCodeId: item.upperCodeId,
-    code: item.code,
-    codeName: item.codeName,
-    description: item.description,
-    srt: item.srt,
-    etc1: item.etc1,
-    etc2: item.etc2,
-    etc3: item.etc3,
-    etc4: item.etc4,
-    useYn: item.useYn ?? true
+  await axios.get('/api/codes', {
+    params
+  }).then(res => {
+    console.log("🚀 ~ selectList ~ res:", res)
+    rowData.value = (res.data || []).map(item => ({
+      ...item,
+      useYn: item.useYn === true ? 'Y' : item.useYn === false ? 'N' : item.useYn
+    }))
+  }).catch(res => {
+    alert('error')
   })
 }
 
-const submit = async () => {
-  saving.value = true
-  try {
-    const payload = {
-      upperCodeId: form.upperCodeId || null,
-      code: form.code,
-      codeName: form.codeName,
-      description: form.description,
-      srt: form.srt || null,
-      etc1: form.etc1 || null,
-      etc2: form.etc2 || null,
-      etc3: form.etc3 || null,
-      etc4: form.etc4 || null,
-      useYn: form.useYn
-    }
+// // 상세보기 : 그리드의 행 클릭
+// function fn_openDetail(av_param) {
+//   av_param.action = 'edit'
+//   dialog.value.open(av_param)
+// }
 
-    if (editingId.value) {
-      await axios.put(`/api/code/${editingId.value}`, payload)
-      comm.alert('코드가 수정되었습니다.', '알림')
-    } else {
-      await axios.post('/api/code', payload)
-      comm.alert('코드가 등록되었습니다.', '알림')
-    }
+// // [등록] : 등록 팝업창 호출
+// function openRegister() {
+//   // - Popup Open : @callbackPopup = callbackPopup
+//   // let action = 'create'
+//   let av_param = {
+//     'action': 'create'
+//   }
+//   dialog.value.open(av_param)
+// }
 
-    await fetchList()
-    resetForm()
-  } finally {
-    saving.value = false
-  }
-}
+// // Popup의 CallBack 처리 : Popup의 [등록], [저장] 등의 이벤트 처리 후에 창이 닫히면서 호출
+// function callbackPopup(params) {
+//   let editData = params.data
 
-const removeItem = async (item) => {
-  if (!comm.confirm(`코드(${item.code})를 삭제하시겠습니까?`, '확인')) {
-    return
-  }
-  await axios.delete(`/api/code/${item.codeId}`)
-  if (editingId.value === item.codeId) {
-    resetForm()
-  }
-  await fetchList()
-}
+//   if (params.action === 'C') {
+//     comm.agGridAddRows(
+//       rowData.value,
+//       grdListTable.value,
+//       editData,
+//       'prepand'
+//     )
+//   } else {
+//     let updateRow = []
+    
+//     updateRow.push(editData)
+    
+//     if(updateRow.length > 0) {
+//       updateRow.forEach(row => {
+//         comm.agGridUpdateRow(
+//           rowData.value,
+//           grdListTable.value,
+//           row
+//         )
+//       })
+//     }
+//   }
+// }
 
-onMounted(() => {
-  fetchList()
-})
 </script>

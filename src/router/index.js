@@ -3,6 +3,7 @@ import { routes } from 'vue-router/auto-routes'
 import axios from '@/plugins/axios'
 import comm from '@/utils/comm'
 import { useUserStore } from '@/stores/user'
+import { findFirstNavigableMenu, isRouteAccessible } from '@/utils/menu'
 
 const authExceptionPage = ['/', '/login', '/main']
 
@@ -53,13 +54,6 @@ router.beforeEach(async (to, from, next) => {
     sessionStorage.setItem('_INIT_PARAM_', JSON.stringify(to.query))
   }
 
-  if (!await comm.confirmDataModified()) {
-    next(false)
-    return
-  }
-
-  comm.resetDataListInView()
-
   const userStore = useUserStore()
   let authed = userStore.isAuthenticated
 
@@ -77,23 +71,25 @@ router.beforeEach(async (to, from, next) => {
   }
 
   if (!isException) {
-    try {
-      const result = await axios({
-        url: '/main/main/isMenuAuthExists.do',
-        method: 'get',
-        params: { url: to.name }
-      })
+    // 프런트 스토어에 저장된 메뉴 정보만으로도 접근 권한을 판별할 수 있으므로,
+    // 별도 서버 호출 없이 허용 경로인지 확인한다.
+    const hasAccess =
+      isRouteAccessible(userStore, router, to.path) ||
+      (to.name && isRouteAccessible(userStore, router, String(to.name)))
 
-      if (result.data.isMenuAuthExists) {
-        next()
+    if (!hasAccess) {
+      const fallback = findFirstNavigableMenu(userStore, router)
+      if (fallback?.destination) {
+        comm.alert('페이지에 접근할 권한이 없습니다.', 'Error')
+        next({ path: fallback.destination, replace: true })
       } else {
         comm.alert('페이지에 접근할 권한이 없습니다.\n로그인 해주시기 바랍니다.', 'Error')
-        next({ path: '/' })
+        next({ path: '/login', replace: true })
       }
-    } catch (error) {
-      comm.alert('권한 확인 중 오류가 발생했습니다.', 'Error')
-      next(false)
+      return
     }
+
+    next()
     return
   }
 

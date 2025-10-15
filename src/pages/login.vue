@@ -39,6 +39,7 @@
 import { computed, inject, onBeforeMount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { findFirstNavigableMenu } from '@/utils/menu'
 
 const axios = inject('axios')
 const router = useRouter()
@@ -51,9 +52,36 @@ const errorMessage = ref('')
 const canSubmit = computed(() => Boolean(id.value) && Boolean(password.value) && !loading.value)
 const postLoginPath = import.meta.env.VITE_home_page || '/main'
 
+/**
+ * 세션에 등록된 메뉴 목록 중 가장 먼저 접근 가능한 화면으로 이동한다.
+ * - 메뉴가 하나도 없으면 환경변수로 지정된 postLoginPath 로 폴백한다.
+ */
+const navigateToHome = () => {
+  const navigable = findFirstNavigableMenu(userStore, router)
+  if (navigable?.destination) {
+    if (
+      /^(https?:)?\/\//i.test(navigable.destination) ||
+      navigable.destination.startsWith('mailto:') ||
+      navigable.destination.startsWith('tel:')
+    ) {
+      window.location.href = navigable.destination
+    } else {
+      router.replace({ path: navigable.destination })
+    }
+    return true
+  }
+
+  if (postLoginPath) {
+    router.replace({ path: postLoginPath })
+    return true
+  }
+
+  return false
+}
+
 onBeforeMount(() => {
   if (userStore.isAuthenticated) {
-    router.replace({ path: postLoginPath })
+    navigateToHome()
   }
 })
 
@@ -96,7 +124,7 @@ const onSubmit = async () => {
       }
     )
 
-    router.replace({ path: postLoginPath })
+    navigateToHome()
   } catch (error) {
     const fallback = error?.response?.data?.message || error.message || 'Failed to sign in. Please try again.'
     errorMessage.value = fallback
