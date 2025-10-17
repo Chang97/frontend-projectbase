@@ -69,7 +69,8 @@ const refreshSession = async (userStore) => {
         return true
       })
       .catch((error) => {
-        userStore.logout()
+        const status = error?.response?.status
+        error.__shouldLogout = status === 401 || status === 403
         throw error
       })
       .finally(() => {
@@ -131,8 +132,12 @@ apiClient.interceptors.response.use(
         originalRequest.__isRetryRequest = true
         return apiClient(originalRequest)
       } catch (refreshError) {
-        userStore.logout()
-        redirectToLogin()
+        if (refreshError?.__shouldLogout) {
+          userStore.logout()
+          redirectToLogin()
+        } else if (originalRequest) {
+          originalRequest.__skipLogout = true
+        }
         return Promise.reject(refreshError)
       }
     }
@@ -140,7 +145,7 @@ apiClient.interceptors.response.use(
     const errmsg = error?.response?.data?.__errmsg__ ?? 'error'
     comm.alert(errmsg, 'Error')
 
-    if (status === 401 && !isRefreshRequest) {
+    if (status === 401 && !isRefreshRequest && !originalRequest?.__skipLogout) {
       userStore.logout()
       redirectToLogin()
     }
