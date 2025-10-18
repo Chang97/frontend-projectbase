@@ -10,6 +10,8 @@ const axiosConfig = {
   baseURL: import.meta.env.VITE_axios_baseURL,
   // timeout: 60 * 1000, // Timeout
   withCredentials: true, // 쿠키 기반 인증 세션을 공유하기 위해 true 설정
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
   paramsSerializer: {
     // axios 기본 qs 처리에 []이 포함될 때 문제가 있어 직접 직렬화 로직을 붙인다.
     serialize: (params) => {
