@@ -121,12 +121,14 @@
       <button type="button" @click="close" class="btn sub">닫기</button>
     </div>
   </Dialog>
+  <UserPasswordChangeDialog ref="dialog"></UserPasswordChangeDialog>
 </template>
 
 <script setup>
 import { computed, inject, nextTick, onMounted, ref, watch } from "vue"
 import Select from "@/components/common/Select.vue"
 import comm from "@/utils/comm"
+import UserPasswordChangeDialog from "./UserPasswordChangeDialog.vue"
 
 const axios = inject('axios')
 
@@ -351,7 +353,7 @@ async function checkUserId() {
 }
 
 function openPop() {
-  dialog.value?.open(popupData.value.loginId)
+  dialog.value.open(popupData.value.userId)
 }
 
 function openOrgPop() {
