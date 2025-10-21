@@ -114,7 +114,7 @@ async function selectList() {
     params.useYn = cond.value.useYn
   }
 
-  await axios.get('/api/codes', {
+  axios.get('/api/codes', {
     params
   }).then(res => {
     rowData.value = (res.data || []).map(item => ({
