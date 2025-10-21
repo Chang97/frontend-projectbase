@@ -1,189 +1,116 @@
 <template>
-  <section class="content">
-    <div class="content-box gap-24">
-      <header class="flex-row space middle pb16">
-        <h2>메뉴 관리</h2>
-        <div class="flex-row gap-8">
-          <button class="btn sub" type="button" @click="resetForm">신규</button>
-          <button class="btn" type="button" @click="submit" :disabled="saving">{{ editingId ? '수정' : '등록' }}</button>
-        </div>
-      </header>
+    <div class="flex-item flex-column">
 
-      <div class="flex-row gap-24 top">
-        <div class="list-container flex-item">
-          <div class="table-scroll">
-            <table class="list-table">
-              <thead>
-                <tr>
-                  <th scope="col">메뉴 코드</th>
-                  <th scope="col">메뉴명</th>
-                  <th scope="col">상위 메뉴</th>
-                  <th scope="col">URL</th>
-                  <th scope="col">정렬</th>
-                  <th scope="col">사용 여부</th>
-                  <th scope="col">관리</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-if="!list.length">
-                  <td colspan="7">등록된 메뉴가 없습니다.</td>
-                </tr>
-                <tr v-for="item in list" :key="item.menuId" @click="edit(item)">
-                  <td>{{ item.menuCode }}</td>
-                  <td>{{ item.menuName }}</td>
-                  <td>{{ item.upperMenuId ?? '-' }}</td>
-                  <td>{{ item.url ?? '-' }}</td>
-                  <td>{{ item.srt ?? '-' }}</td>
-                  <td>{{ item.useYn ? '사용' : '미사용' }}</td>
-                  <td>
-                    <div class="flex-row gap-8">
-                      <button class="btn func" type="button" @click.stop="edit(item)">수정</button>
-                      <button class="btn func" type="button" @click.stop="removeItem(item)">삭제</button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+    <search-box 
+      v-model="cond" 
+      :condList="condList" 
+      :comboList="comboList" 
+      @search="search">
+    </search-box>
 
-        <aside class="flex-item-2">
-          <form class="flex-column gap-16" @submit.prevent="submit">
-            <h3 class="page-title">{{ editingId ? '메뉴 수정' : '메뉴 등록' }}</h3>
-            <div class="input-area">
-              <label class="label" for="menuCode">메뉴 코드 *</label>
-              <input id="menuCode" v-model="form.menuCode" type="text" required />
-            </div>
-            <div class="input-area">
-              <label class="label" for="menuName">메뉴명 *</label>
-              <input id="menuName" v-model="form.menuName" type="text" required />
-            </div>
-            <div class="input-area">
-              <label class="label" for="upperMenuId">상위 메뉴 ID</label>
-              <input id="upperMenuId" v-model.number="form.upperMenuId" type="number" min="0" />
-            </div>
-            <div class="input-area">
-              <label class="label" for="url">URL</label>
-              <input id="url" v-model="form.url" type="text" placeholder="/main/manage/codes" />
-            </div>
-            <div class="input-area">
-              <label class="label" for="menuCn">설명</label>
-              <textarea id="menuCn" v-model="form.menuCn" rows="3" placeholder="메뉴 설명"></textarea>
-            </div>
-            <div class="input-area">
-              <label class="label" for="srt">정렬 순서</label>
-              <input id="srt" v-model.number="form.srt" type="number" min="0" />
-            </div>
-            <div class="input-area">
-              <label class="label">사용 여부</label>
-              <label class="toggle">
-                <input v-model="form.useYn" type="checkbox" />
-                <span>{{ form.useYn ? '사용' : '미사용' }}</span>
-              </label>
-            </div>
-            <div class="flex-row gap-8">
-              <button class="btn" type="submit" :disabled="saving">{{ editingId ? '수정' : '등록' }}</button>
-              <button class="btn sub" type="button" @click="resetForm">초기화</button>
-            </div>
-          </form>
-        </aside>
-      </div>
+    <div class="content">
+      <GridArea :cnt="rowData.length">
+        <template v-slot:buttons>
+          <button type="button" class="btn" @click="openDetail()">등록</button>
+        </template>
+        <ag-grid-vue 
+          style="width: 100%;"
+          class="ag-theme-balham" 
+          :columnDefs="columnDefs"
+          :rowData="rowData"
+          rowSelection='none'
+          @firstDataRendered="comm.sizeColumnsToFit"
+          @gridSizeChanged="comm.sizeColumnsToFit"
+          @grid-ready="(params) => {
+            grdListTable = params.api
+          }"
+          >
+        </ag-grid-vue>
+      </GridArea>
     </div>
-  </section>
+
+  </div>
+
+  <MenuManageDialog ref="dialog" @callback="search"></MenuManageDialog>
 </template>
 
 <script setup>
-import { inject, onMounted, reactive, ref } from 'vue'
-import comm from '@/utils/comm'
-
+import { ref, onMounted, nextTick, inject } from 'vue';
+import MenuManageDialog from './MenuManageDialog.vue';
+import GridArea from '@/components/common/GridArea.vue';
+import TreeRenderer from '@/components/cellRenderer/TreeRenderer.vue'
+import SearchBox from '@/components/common/SearchBox.vue'
+import comm from "@/utils/comm"
 const axios = inject('axios')
 
-const list = ref([])
-const saving = ref(false)
-const editingId = ref(null)
-const form = reactive({
-  menuCode: '',
-  menuName: '',
-  upperMenuId: null,
-  menuCn: '',
-  url: '',
-  srt: null,
-  useYn: true
+onMounted(async () => {
+  
+  comboList.value.useYn = await comm.selectCodeList({ upperCode:'YN' })
+  search()
 })
 
-const defaultForm = () => ({
-  menuCode: '',
-  menuName: '',
-  upperMenuId: null,
-  menuCn: '',
-  url: '',
-  srt: null,
-  useYn: true
+const condList = ref([
+  [
+    {condName: '메뉴명'   , condCode: 'menuName'       , type: 'text'},
+    {condName: '사용 여부' , condCode: 'useYn'        , type: 'select', labelClass: 'small'}
+  ]
+])
+
+// 조회 조건
+const cond = ref({
+  upperMenuCode : '',
+  menuName       : '',
+  useYn        : ''
 })
 
-const resetForm = () => {
-  Object.assign(form, defaultForm())
-  editingId.value = null
+// 검색조건 콤보 item list
+const comboList = ref({
+  upperMenuCode : [],
+  useYn        : []
+})
+
+// - 그리드 설정
+const grdListTable = ref()
+const columnDefs = comm.makeTooltipField(ref([
+  { headerName: '메뉴명', field: 'menuName', cellStyle: { 'text-align': 'left' }, width: 260, sortable:false,
+    cellRenderer: TreeRenderer,
+    cellRendererParams: {
+      click: (params) => {
+        let av_param = comm.objDeepCopy(params.data)
+        openDetail(av_param)
+      }
+    }
+  },
+  { headerName: '메뉴 코드'    , field: 'menuCode'        , width: 80   , cellStyle: { 'text-align': 'left' } , },
+  { headerName: '경로'    , field: 'path'        , width: 260  , cellStyle: { 'text-align': 'left' } },
+  { headerName: 'URL'     , field: 'url'            , width: 150  , cellStyle: { 'text-align': 'left' } },
+  { headerName: '사용 여부'    , field: 'useYn'         , width: 50   , cellStyle: { 'text-align': 'center' } , },
+  { headerName: '순서'        , field: 'srt'            , width: 80   , cellStyle: { 'text-align': 'center' } , },
+]))
+
+const rowData = ref([])
+
+// Popup 설정
+const dialog = ref(null)
+
+
+// 검색 기능
+async function search() {
+  selectList()
 }
 
-const fetchList = async () => {
-  const { data } = await axios.get('/api/menu')
-  list.value = data ?? []
-}
-
-const edit = (item) => {
-  editingId.value = item.menuId
-  Object.assign(form, {
-    menuCode: item.menuCode,
-    menuName: item.menuName,
-    upperMenuId: item.upperMenuId,
-    menuCn: item.menuCn,
-    url: item.url,
-    srt: item.srt,
-    useYn: item.useYn ?? true
+// [조회] : 그리드 조회
+async function selectList() {
+  rowData.value = []
+  let response = await axios.get(`/api/menu`, {
+    params        : cond.value
   })
+  rowData.value = response.data
 }
 
-const submit = async () => {
-  saving.value = true
-  try {
-    const payload = {
-      menuCode: form.menuCode,
-      menuName: form.menuName,
-      upperMenuId: form.upperMenuId || null,
-      menuCn: form.menuCn || null,
-      url: form.url || null,
-      srt: form.srt || null,
-      useYn: form.useYn
-    }
-
-    if (editingId.value) {
-      await axios.put(`/api/menu/${editingId.value}`, payload)
-      comm.alert('메뉴가 수정되었습니다.', '알림')
-    } else {
-      await axios.post('/api/menu', payload)
-      comm.alert('메뉴가 등록되었습니다.', '알림')
-    }
-
-    await fetchList()
-    resetForm()
-  } finally {
-    saving.value = false
-  }
+// 상세보기 : 그리드의 행 클릭
+function openDetail(params) {
+  dialog.value.open(params)
 }
 
-const removeItem = async (item) => {
-  if (!comm.confirm(`메뉴(${item.menuName})를 삭제하시겠습니까?`, '확인')) {
-    return
-  }
-  await axios.delete(`/api/menu/${item.menuId}`)
-  if (editingId.value === item.menuId) {
-    resetForm()
-  }
-  await fetchList()
-}
-
-onMounted(() => {
-  fetchList()
-})
 </script>

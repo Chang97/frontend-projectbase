@@ -49,7 +49,7 @@ onMounted(async () => {
 // 조회 조건 설정
 const condList = ref([
   [
-    {condName: '권한명'   , condCode: 'roleName'  , type: 'text'},
+    {condName: '역할명'   , condCode: 'roleName'  , type: 'text'},
     {condName: '사용 여부', condCode: 'useYn'     , type: 'select', labelClass: 'small' }
   ]
 ])
@@ -69,7 +69,7 @@ const comboList = ref({
 const grdListTable = ref()
 // - 그리드 컬럼 속성 정보
 const columnDefs = comm.makeTooltipField(ref([
-  { headerName: '권한명', field: 'roleName', width: 200, minWidth: 200, cellStyle: { 'text-align': 'left' },
+  { headerName: '역할명', field: 'roleName', width: 200, minWidth: 200, cellStyle: { 'text-align': 'left' },
     cellRenderer: LinkRenderer,
     cellRendererParams: {
       click: (params) => {
