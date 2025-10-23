@@ -30,6 +30,7 @@ export const useUserStore = defineStore(
     const userFieldRefs = createUserFieldRefs()
     const menuTree = ref([])
     const accessibleMenus = ref([])
+    const permissions = ref([])
     const sessionChecked = ref(false) // /api/auth/me 호출을 통해 세션을 확인한 적이 있는지 여부
     const menuList = ref([])
     const leafMenuList = ref([])
@@ -72,6 +73,49 @@ export const useUserStore = defineStore(
       })
     }
 
+    const normalizePermissionCodes = (values) => {
+      if (!Array.isArray(values)) {
+        return []
+      }
+      const unique = new Set()
+      values.forEach((value) => {
+        if (value === undefined || value === null) {
+          return
+        }
+        const normalized = String(value).trim()
+        if (!normalized.length) {
+          return
+        }
+        if (!unique.has(normalized)) {
+          unique.add(normalized)
+        }
+      })
+      return Array.from(unique)
+    }
+
+    const setPermissions = (values) => {
+      permissions.value = normalizePermissionCodes(values)
+    }
+
+    const hasPermission = (required) => {
+      if (required === undefined || required === null) {
+        return false
+      }
+      const current = permissions.value ?? []
+      if (Array.isArray(required)) {
+        const normalizedList = normalizePermissionCodes(required)
+        if (!normalizedList.length) {
+          return false
+        }
+        return normalizedList.every((code) => current.includes(code))
+      }
+      const normalized = String(required).trim()
+      if (!normalized.length) {
+        return false
+      }
+      return current.includes(normalized)
+    }
+
     /**
      * 서버가 내려준 사용자/메뉴 정보를 스토어에 반영한다.
      * - user 정보가 존재하지 않으면 preserveExistingUser 가 false일 때만 초기화한다.
@@ -104,6 +148,12 @@ export const useUserStore = defineStore(
         accessibleMenus.value = []
       }
 
+      if (payload.permissions !== undefined) {
+        setPermissions(payload.permissions)
+      } else if (!preserveExistingUser) {
+        setPermissions([])
+      }
+
       rebuildLegacyMenus(menuTree.value, accessibleMenus.value)
       resolveCurrentMenu(window?.location?.pathname ?? '')
 
@@ -128,6 +178,7 @@ export const useUserStore = defineStore(
       resetUserFields()
       menuTree.value = []
       accessibleMenus.value = []
+      setPermissions([])
       menuList.value = []
       leafMenuList.value = []
       currentMenu.value = null
@@ -143,6 +194,7 @@ export const useUserStore = defineStore(
       resetUserFields()
       menuTree.value = []
       accessibleMenus.value = []
+      setPermissions([])
       menuList.value = []
       leafMenuList.value = []
       currentMenu.value = null
@@ -308,6 +360,7 @@ export const useUserStore = defineStore(
       ...userFieldRefs,
       menuTree,
       accessibleMenus,
+      permissions,
       sessionChecked,
       menuList,
       leafMenuList,
@@ -319,6 +372,7 @@ export const useUserStore = defineStore(
       logout,
       markSessionChecked,
       resolveCurrentMenu,
+      hasPermission,
       $reset
     }
   },
@@ -333,6 +387,7 @@ export const useUserStore = defineStore(
             ...Object.keys(DEFAULT_USER_STATE),
             'menuTree',
             'accessibleMenus',
+            'permissions',
             'menuList',
             'leafMenuList',
             'currentMenu',
