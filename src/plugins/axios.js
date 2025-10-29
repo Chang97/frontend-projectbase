@@ -10,8 +10,6 @@ const axiosConfig = {
   baseURL: import.meta.env.VITE_axios_baseURL,
   // timeout: 60 * 1000, // Timeout
   withCredentials: true, // 쿠키 기반 인증 세션을 공유하기 위해 true 설정
-  xsrfCookieName: 'XSRF-TOKEN',
-  xsrfHeaderName: 'X-CSRF-TOKEN',
   paramsSerializer: {
     // axios 기본 qs 처리에 []이 포함될 때 문제가 있어 직접 직렬화 로직을 붙인다.
     serialize: (params) => {
@@ -43,39 +41,6 @@ const refreshClient = axios.create({
   withCredentials: true // HttpOnly 쿠키 기반의 리프레시 토큰을 지원하기 위한 설정
 })
 
-let csrfTokenCache = undefined
-
-const attachCsrfHeader = (config) => {
-  const csrfToken = getCookie('XSRF-TOKEN')
-  if (csrfToken) {
-    if (typeof config.headers?.set === 'function') {
-      config.headers.set('X-CSRF-TOKEN', csrfToken)
-    } else {
-      config.headers = config.headers ?? {}
-      config.headers['X-CSRF-TOKEN'] = csrfToken
-    }
-    csrfTokenCache = csrfToken
-    if (import.meta.env.DEV) {
-      console.debug('[axios] attach csrf header from cookie', csrfToken)
-    }
-  } else if (csrfTokenCache) {
-    if (typeof config.headers?.set === 'function') {
-      config.headers.set('X-CSRF-TOKEN', csrfTokenCache)
-    } else {
-      config.headers = config.headers ?? {}
-      config.headers['X-CSRF-TOKEN'] = csrfTokenCache
-    }
-    if (import.meta.env.DEV) {
-      console.debug('[axios] reuse cached csrf header', csrfTokenCache)
-    }
-  } else if (import.meta.env.DEV) {
-    console.debug('[axios] XSRF-TOKEN cookie not found. document.cookie=', document.cookie)
-  }
-  return config
-}
-
-apiClient.interceptors.request.use(attachCsrfHeader)
-refreshClient.interceptors.request.use(attachCsrfHeader)
 
 const REFRESH_ENDPOINT = '/api/auth/refresh'
 const LOGIN_REDIRECT_PATH = '/login'
@@ -146,18 +111,7 @@ function getCookie(name) {
 
 apiClient.interceptors.response.use(
   async (response) => {
-    const csrfHeader =
-      response?.headers?.get?.('x-csrf-token') ??
-      response?.headers?.get?.('X-CSRF-TOKEN') ??
-      response?.headers?.['x-csrf-token'] ??
-      response?.headers?.['X-CSRF-TOKEN']
-    if (csrfHeader) {
-      csrfTokenCache = csrfHeader
-      if (import.meta.env.DEV) {
-        console.debug('[axios] update csrf cache from response header', csrfHeader)
-      }
-      document.cookie = `XSRF-TOKEN=${csrfHeader}; path=/; SameSite=Lax`
-    }
+    
     const errmsg = response?.data?.__errmsg__
     if (!errmsg) {
       for (let key in response.data) {
@@ -191,7 +145,6 @@ apiClient.interceptors.response.use(
       } catch (refreshError) {
         if (refreshError?.__shouldLogout) {
           userStore.logout()
-          csrfTokenCache = undefined
           redirectToLogin()
         } else if (originalRequest) {
           originalRequest.__skipLogout = true
@@ -205,7 +158,6 @@ apiClient.interceptors.response.use(
 
     if (status === 401 && !isRefreshRequest && !originalRequest?.__skipLogout) {
       userStore.logout()
-      csrfTokenCache = undefined
       redirectToLogin()
     }
 
