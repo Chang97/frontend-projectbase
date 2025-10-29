@@ -131,11 +131,15 @@ function openRegister() {
 // [조회] : 그리드 조회
 async function selectList() {
   rowData.value = []
-
+  let payload = {
+    orgName: cond.value.orgName,
+    loginId: cond.value.loginId,
+    roleName: cond.value.roleName,
+    useYn: null
+  }
+  if (cond.value.useYn) payload.useYn = cond.value.useYn === 'Y'
   // 1. 조회조건 체크
-  let response = await axios.get("/api/users", {
-    params: cond.value,
-  })
+  let response = await axios.get("/api/users", { payload })
   rowData.value = response.data
 }
 

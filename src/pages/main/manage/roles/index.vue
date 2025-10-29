@@ -104,9 +104,13 @@ function openRegister() {
 // [조회] : 그리드 조회
 async function selectList() {
   rowData.value = []
-  let response = await axios.get('/api/role', {
-    params        : cond.value
-  })
+
+  let payload = {
+    roleName : cond.value.roleName,
+    useYn    : ''
+  }
+  if (cond.value.useYn) payload.useYn = cond.value.useYn === 'Y'
+  let response = await axios.get('/api/role', { payload })
   rowData.value = response.data
 }
 

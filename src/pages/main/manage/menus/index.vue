@@ -102,9 +102,12 @@ async function search() {
 // [조회] : 그리드 조회
 async function selectList() {
   rowData.value = []
-  let response = await axios.get(`/api/menu`, {
-    params        : cond.value
-  })
+  let payload = {
+    menuName : cond.value.menuName,
+    useYn    : ''
+  }
+  if (cond.value.useYn) payload.useYn = cond.value.useYn === 'Y'
+  let response = await axios.get(`/api/menu`, { payload })
   rowData.value = response.data
 }
 

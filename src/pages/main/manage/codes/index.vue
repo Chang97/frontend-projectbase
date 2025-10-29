@@ -105,25 +105,17 @@ async function selectList() {
   // 1. 조회조건 체크
 
   rowData.value = []
-
-  const params = {}
-  if (cond.value.codeName && cond.value.codeName.trim().length > 0) {
-    params.codeName = cond.value.codeName.trim()
+  let payload = {
+    codeName : cond.value.codeName,
+    useYn    : ''
   }
-  if (cond.value.useYn) {
-    params.useYn = cond.value.useYn
-  }
+  if (cond.value.useYn) payload.useYn = cond.value.useYn === 'Y'
 
-  axios.get('/api/codes', {
-    params
-  }).then(res => {
-    rowData.value = (res.data || []).map(item => ({
-      ...item,
-      useYn: item.useYn === true ? 'Y' : item.useYn === false ? 'N' : item.useYn
-    }))
-  }).catch(res => {
-    comm.alert('error')
-  })
+  let response = await axios.get('/api/codes', { payload })
+  rowData.value = (response.data || []).map(item => ({
+    ...item,
+    useYn: item.useYn === true ? 'Y' : item.useYn === false ? 'N' : item.useYn
+  }))
 }
 
 // 상세보기 : 그리드의 행 클릭

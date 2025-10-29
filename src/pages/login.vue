@@ -113,7 +113,7 @@ const onSubmit = async () => {
       throw new Error('Unable to resolve user identity.')
     }
 
-    userStore.setSession(
+    await userStore.setSession(
       data,
       {
         fallbackLoginId: resolvedLoginId,
@@ -121,6 +121,9 @@ const onSubmit = async () => {
         user: userInfo
       }
     )
+    
+    const response = await axios.get(`/api/authr/resolveMenus/${resolvedUserId}`)
+    userStore.setMenuTree(response.data)
 
     navigateToHome()
   } catch (error) {

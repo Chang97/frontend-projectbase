@@ -121,7 +121,7 @@ export const useUserStore = defineStore(
      * - user 정보가 존재하지 않으면 preserveExistingUser 가 false일 때만 초기화한다.
      * - 메뉴 목록은 응답에 없을 때 preserveExistingUser 옵션에 따라 유지/초기화한다.
      */
-    const setSession = (payload = {}, options = {}) => {
+    const setSession = async (payload = {}, options = {}) => {
       const {
         fallbackLoginId = '',
         fallbackUserId = null,
@@ -172,6 +172,14 @@ export const useUserStore = defineStore(
       }
 
       sessionChecked.value = true
+    }
+
+    const setMenuTree = (payload) => {
+      menuTree.value = Array.isArray(payload.menus) ? payload.menus : []
+      accessibleMenus.value = Array.isArray(payload.accessibleMenus) ? payload.accessibleMenus : []
+
+      rebuildLegacyMenus(menuTree.value, accessibleMenus.value)
+      resolveCurrentMenu(window?.location?.pathname ?? '')
     }
 
     const logout = () => {
@@ -373,7 +381,8 @@ export const useUserStore = defineStore(
       markSessionChecked,
       resolveCurrentMenu,
       hasPermission,
-      $reset
+      $reset,
+      setMenuTree
     }
   },
   {
