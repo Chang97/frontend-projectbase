@@ -47,18 +47,6 @@ export default {
   // comm.code.js
   getObjectLength: code_comm.getObjectLength,
   selectCodeList: code_comm.selectCodeList,
-  selectOrgList: code_comm.selectOrgList,
-  selectOrgMultiList: code_comm.selectOrgMultiList,
-  selectUserList: code_comm.selectUserList,
-  selectUserMultiList: code_comm.selectUserMultiList,
-  selectPstnList: code_comm.selectPstnList,
-  selectStcmList: code_comm.selectStcmList,
-  selectPstnOrgList: code_comm.selectPstnOrgList,
-  selectUserOrgDetail: code_comm.selectUserOrgDetail,
-  selectHistYmdList: code_comm.selectHistYmdList,
-  selectPstnHistList: code_comm.selectPstnHistList,
-  selectPstnQuarterHistList: code_comm.selectPstnQuarterHistList,
-  selectEfctMstList: code_comm.selectEfctMstList,
 
   // comm.message.js
   alert: message_comm.alert,

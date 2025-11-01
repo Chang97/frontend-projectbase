@@ -13,6 +13,34 @@ const router = createRouter({
 })
 
 let sessionHydrationPromise = null
+let menuHydrationPromise = null
+
+const unwrap = (maybeRef) => (maybeRef && typeof maybeRef === 'object' && 'value' in maybeRef ? maybeRef.value : maybeRef)
+
+const fetchAccessibleMenus = async (userStore, userId) => {
+  if (!userStore || !userId) {
+    return
+  }
+
+  if (!menuHydrationPromise) {
+    menuHydrationPromise = axios
+      .get(`/api/authr/menus/accessible/${userId}`)
+      .then(({ data }) => {
+        if (data) {
+          userStore.setMenuTree(data)
+        }
+      })
+      .catch((error) => {
+        // 메뉴 정보를 가져오지 못해도 라우팅 자체는 진행할 수 있도록 로그만 남긴다.
+        console.error('Failed to load accessible menus', error)
+      })
+      .finally(() => {
+        menuHydrationPromise = null
+      })
+  }
+
+  return menuHydrationPromise
+}
 
 const hydrateSessionIfNeeded = async () => {
   const userStore = useUserStore()
@@ -28,13 +56,28 @@ const hydrateSessionIfNeeded = async () => {
   if (!sessionHydrationPromise) {
     sessionHydrationPromise = axios
       .get('/api/auth/me')
-      .then(({ data }) => {
+      .then(async ({ data }) => {
         const userInfo = data?.user ?? {}
-        userStore.setSession(data, {
+        const resolvedLoginId = userInfo?.loginId ?? data?.loginId ?? ''
+        const resolvedUserId = userInfo?.userId ?? data?.userId ?? null
+
+        await userStore.setSession(data, {
           user: userInfo,
-          fallbackLoginId: userInfo?.loginId ?? '',
-          fallbackUserId: userInfo?.userId ?? null
+          fallbackLoginId: resolvedLoginId,
+          fallbackUserId: resolvedUserId,
+          preserveExistingUser: true
         })
+
+        const menuTree = unwrap(userStore.menuTree)
+        const accessibleMenus = unwrap(userStore.accessibleMenus)
+        const hasMenus =
+          Array.isArray(menuTree) && menuTree.length > 0 &&
+          Array.isArray(accessibleMenus) && accessibleMenus.length > 0
+
+        if (!hasMenus && resolvedUserId) {
+          await fetchAccessibleMenus(userStore, resolvedUserId)
+        }
+
         return true
       })
       .catch(() => {
@@ -68,6 +111,17 @@ router.beforeEach(async (to, from, next) => {
     comm.alert('존재하지 않는 페이지입니다.', 'Error')
     next(false)
     return
+  }
+
+  if (authed) {
+    const menuTree = unwrap(userStore.menuTree)
+    const accessibleMenus = unwrap(userStore.accessibleMenus)
+    const hasMenus = Array.isArray(menuTree) && menuTree.length > 0
+    const hasAccessible = Array.isArray(accessibleMenus) && accessibleMenus.length > 0
+    const currentUserId = unwrap(userStore.userId)
+    if ((!hasMenus || !hasAccessible) && currentUserId) {
+      await fetchAccessibleMenus(userStore, currentUserId)
+    }
   }
 
   if (!isException) {

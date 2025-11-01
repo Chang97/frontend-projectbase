@@ -1,8 +1,3 @@
-<route lang="yaml">
-path: /main/manage/permissions/permission-manage
-name: PermissionManage
-</route>
-
 <template>
   <div class="flex-item flex-column">
     <search-box 
