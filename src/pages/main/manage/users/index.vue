@@ -11,13 +11,7 @@
     <div class="content">
       <GridArea :selectedCnt="rowData.length">
         <template v-slot:buttons>
-<!--          <button type="button" class="btn excel" @click="downloadTemplate"><span class="icon excel"></span>템플릿</button>-->
-<!--          <button type="button" class="btn excel" @click="uploadExcel"><span class="icon excel"></span>업로드</button>-->
-<!--          <button type="button" class="btn excel" @click="downloadExcel"><span class="icon excel"></span>다운로드</button>-->
-<!--          <button type="button" class="btn" @click="sendMail">메일발송</button>-->
-          <!-- <button type="button" class="btn" @click="openChangePasswordPopup">전체 비밀번호 변경</button> -->
           <button type="button" class="btn" @click="openRegister">등록</button>
-          <!-- <button type="button" class="btn" @click="save">저장</button> -->
         </template>
         <ag-grid-vue
             style="width: 100%;"
@@ -59,7 +53,7 @@ onMounted(async () => {
 const condList = ref([
   [
     {condName: '부서명', condCode: 'orgName', type: 'text'},
-    {condName: '이름/ID', condCode: 'loginId', type: 'text'},
+    {condName: '이름/ID', condCode: 'userName', type: 'text'},
     {condName: '권한', condCode: 'roleName', type: 'text' },
     {condName: '사용 여부', condCode: 'useYn', type: 'select', labelClass:'small'},
   ]
@@ -68,7 +62,7 @@ const condList = ref([
 // 조회 조건
 const cond = ref({
   orgName: '',
-  loginId: '',
+  userName: '',
   roleName: '',
   useYn: 'Y',
 })
@@ -133,13 +127,13 @@ async function selectList() {
   rowData.value = []
   let payload = {
     orgName: cond.value.orgName,
-    loginId: cond.value.loginId,
+    userName: cond.value.userName,
     roleName: cond.value.roleName,
     useYn: null
   }
   if (cond.value.useYn) payload.useYn = cond.value.useYn === 'Y'
   // 1. 조회조건 체크
-  let response = await axios.get("/api/users", { payload })
+  let response = await axios.get("/api/identity/users", { params: payload })
   rowData.value = response.data
 }
 

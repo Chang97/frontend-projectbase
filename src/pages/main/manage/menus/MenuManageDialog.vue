@@ -146,7 +146,7 @@ onMounted(async () => {
 })
 
 async function loadUpperMenus() {
-  const response = await axios.get('/api/menu')
+  const response = await axios.get('/api/authr/menus')
   optionUpMenuCd.value.items = response.data ?? []
   optionUpMenuCd.value.items.unshift({ menuId: null, menuName: '미선택'})
   optionUpMenuCd.value.modelValue = optionUpMenuCd.value.items[0].menuId ?? ''
@@ -156,7 +156,7 @@ async function ensurePermissionList() {
   if (permissionList.value.length) {
     return
   }
-  const response = await axios.get('/api/permission')
+  const response = await axios.get('/api/authr/permissions')
   permissionList.value = response.data ?? []
 }
 
@@ -177,7 +177,7 @@ async function open(avParams) {
   await ensurePermissionList()
   if (avParams && avParams.menuId) {
     isRegPage.value = false
-    const response = await axios.get(`/api/menu/${avParams.menuId}`)
+    const response = await axios.get(`/api/authr/menus/${avParams.menuId}`)
     popupData.value = response.data ?? createEmptyPopup()
     popupData.value.useYn = popupData.value.useYn ? 'Y' : 'N'
     optionUpMenuCd.value.modelValue = popupData.value.upperMenuId ?? ''
@@ -218,9 +218,9 @@ async function saveMenuInfo() {
   popupData.value.permissionIds = [...selectedPermissionIds.value]
   popupData.value.useYn = popupData.value.useYn === 'Y'
   if (isRegPage.value) {
-    await axios.post('/api/menu', popupData.value)
+    await axios.post('/api/authr/menus', popupData.value)
   } else {
-    await axios.put(`/api/menu/${popupData.value.menuId}`, popupData.value)
+    await axios.put(`/api/authr/menus/${popupData.value.menuId}`, popupData.value)
   }
 
   emit('callback')

@@ -96,7 +96,7 @@ async function changePassword() {
   }
   // 유효성 체크 서버에서 함
   try {
-    await axios.put(`/api/users/${popupData.value.userId}/password`, {
+    await axios.put(`/api/identity/users/${popupData.value.userId}/password`, {
       currentPassword: popupData.value.currentPassword?.trim() || null,
       newPassword: popupData.value.newPassword.trim()
     })

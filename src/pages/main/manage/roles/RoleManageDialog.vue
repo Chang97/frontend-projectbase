@@ -96,7 +96,7 @@ async function ensurePermissionList() {
   if (permissionList.value.length) {
     return
   }
-  const response = await axios.get('/api/permission')
+  const response = await axios.get('/api/authr/permissions')
   permissionList.value = response.data ?? []
 }
 
@@ -116,7 +116,7 @@ function handlePermissionConfirm(ids) {
 async function open(avParams) {
   await ensurePermissionList()
   if (avParams && avParams.roleId) {
-    const response = await axios.get(`/api/role/${avParams.roleId}`)
+    const response = await axios.get(`/api/authr/roles/${avParams.roleId}`)
     popupData.value = {
       roleId: response.data.roleId,
       roleName: response.data.roleName,
@@ -155,9 +155,9 @@ async function saveRole() {
   }
 
   if (popupData.value.roleId) {
-    await axios.put(`/api/role/${popupData.value.roleId}`, payload)
+    await axios.put(`/api/authr/roles/${popupData.value.roleId}`, payload)
   } else {
-    await axios.post('/api/role', payload)
+    await axios.post('/api/authr/roles', payload)
   }
 
   emit('callback')

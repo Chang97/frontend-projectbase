@@ -25,7 +25,7 @@ export default ({ mode }) => {
           'src/pages',
         ], // Folder(s) to scan for vue components and generate routes. Can be a string, or an object, or an array of those.
         extensions: ['.vue'], // allowed extensions to be considered as routes
-        exclude: ['**/*Popup*.vue', '**/*Tab*.vue', '**/*Sub*.vue'], // Popup, tab file에 대해서 auto routing 예외처리
+        exclude: ['**/*Popup*.vue', '**/*Tab*.vue', '**/*Sub*.vue', '*/*Dialog*.vue'], // Popup, tab file에 대해서 auto routing 예외처리
       }),
       vue(),
       vueJsx(),

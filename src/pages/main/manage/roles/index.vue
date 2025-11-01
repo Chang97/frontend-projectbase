@@ -110,7 +110,7 @@ async function selectList() {
     useYn    : ''
   }
   if (cond.value.useYn) payload.useYn = cond.value.useYn === 'Y'
-  let response = await axios.get('/api/role', { payload })
+  let response = await axios.get('/api/authr/roles', { params: payload })
   rowData.value = response.data
 }
 

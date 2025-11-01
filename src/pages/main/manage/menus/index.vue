@@ -107,7 +107,7 @@ async function selectList() {
     useYn    : ''
   }
   if (cond.value.useYn) payload.useYn = cond.value.useYn === 'Y'
-  let response = await axios.get(`/api/menu`, { payload })
+  let response = await axios.get(`/api/authr/menus`, { params: payload })
   rowData.value = response.data
 }
 

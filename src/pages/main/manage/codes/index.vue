@@ -111,7 +111,7 @@ async function selectList() {
   }
   if (cond.value.useYn) payload.useYn = cond.value.useYn === 'Y'
 
-  let response = await axios.get('/api/codes', { payload })
+  let response = await axios.get('/api/codes', { params: payload })
   rowData.value = (response.data || []).map(item => ({
     ...item,
     useYn: item.useYn === true ? 'Y' : item.useYn === false ? 'N' : item.useYn

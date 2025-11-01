@@ -184,7 +184,7 @@ function createEmptyUser() {
 
 async function loadRoles() {
   try {
-    const { data } = await axios.get("/api/role")
+    const { data } = await axios.get("/api/authr/roles")
     roleList.value = Array.isArray(data) ? data : []
   } catch (err) {
     roleList.value = []
@@ -232,7 +232,7 @@ async function open(params = {}) {
 }
 
 async function loadUserDetail(userId) {
-  const { data } = await axios.get(`/api/users/${userId}`)
+  const { data } = await axios.get(`/api/identity/users/${userId}`)
   popupData.value = {
     userId: data.userId,
     email: data.email ?? '',
@@ -313,9 +313,9 @@ async function saveUserInfo() {
 
   try {
     if (isNew.value) {
-      await axios.post('/api/users', payload)
+      await axios.post('/api/identity/users', payload)
     } else {
-      await axios.put(`/api/users/${popupData.value.userId}`, payload)
+      await axios.put(`/api/identity/users/${popupData.value.userId}`, payload)
     }
 
     await comm.alert('저장되었습니다.')
@@ -335,11 +335,12 @@ async function checkUserId() {
   }
 
   try {
-    const { data } = await axios.get('/api/users/check-login-id', {
+    const { data } = await axios.get('/api/identity/users/check-login-id', {
       params: { loginId }
     })
+    console.log("🚀 ~ checkUserId ~ data:", data)
 
-    if (!data?.isUserIdValid) {
+    if (!data?.available) {
       await comm.alert('이미 존재하는 아이디입니다.')
       isIdValid.value = false
     } else {

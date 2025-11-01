@@ -122,7 +122,8 @@ const onSubmit = async () => {
       }
     )
     
-    const response = await axios.get(`/api/authr/resolveMenus/${resolvedUserId}`)
+    const response = await axios.get(`/api/authr/menus/accessible/${resolvedUserId}`)
+    console.log("🚀 ~ onSubmit ~ response:", response)
     userStore.setMenuTree(response.data)
 
     navigateToHome()

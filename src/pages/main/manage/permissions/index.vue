@@ -1,3 +1,8 @@
+<route lang="yaml">
+path: /main/manage/permissions/permission-manage
+name: PermissionManage
+</route>
+
 <template>
   <div class="flex-item flex-column">
     <search-box 
@@ -118,7 +123,7 @@ async function selectList() {
     useYn    : ''
   }
   if (cond.value.useYn) payload.useYn = cond.value.useYn === 'Y'
-  let response = await axios.get('/api/permission', { payload })
+  let response = await axios.get('/api/authr/permissions', { params: payload })
   rowData.value = response.data
 }
 

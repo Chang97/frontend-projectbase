@@ -73,7 +73,7 @@ function createEmptyPopup() {
 
 async function open(avParams) {
   if (avParams && avParams.permissionId) {
-    const response = await axios.get(`/api/permission/${avParams.permissionId}`)
+    const response = await axios.get(`/api/authr/permissions/${avParams.permissionId}`)
     popupData.value = {
       permissionId: response.data.permissionId,
       permissionCode: response.data.permissionCode,
@@ -114,9 +114,9 @@ async function saveRole() {
   }
 
   if (popupData.value.permissionId) {
-    await axios.put(`/api/permission/${popupData.value.permissionId}`, payload)
+    await axios.put(`/api/authr/permissions/${popupData.value.permissionId}`, payload)
   } else {
-    await axios.post('/api/permission', payload)
+    await axios.post('/api/authr/permissions', payload)
   }
 
   emit('callback')
