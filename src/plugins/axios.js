@@ -3,6 +3,7 @@ import qs from 'qs'
 
 import router from '@/router'
 import { useUserStore } from '@/stores/user'
+import { useLoadingStore } from '@/stores/loading'
 import comm from '@/utils/comm'
 
 const axiosConfig = {
@@ -38,7 +39,8 @@ const apiClient = axios.create(axiosConfig)
 // refresh 토큰 호출은 실패 시에도 재시도하지 않도록 별도 인스턴스를 사용한다.
 const refreshClient = axios.create({
   ...axiosConfig,
-  withCredentials: true // HttpOnly 쿠키 기반의 리프레시 토큰을 지원하기 위한 설정
+  withCredentials: true, // HttpOnly 쿠키 기반의 리프레시 토큰을 지원하기 위한 설정
+  skipGlobalLoading: true
 })
 
 
@@ -46,6 +48,21 @@ const REFRESH_ENDPOINT = '/api/auth/refresh'
 const LOGIN_REDIRECT_PATH = '/login'
 
 let refreshPromise = null
+const shouldTrackLoading = (config) => config?.skipGlobalLoading !== true
+const startGlobalLoading = () => {
+  try {
+    useLoadingStore().startLoading()
+  } catch (error) {
+    console.warn('Loading store unavailable', error)
+  }
+}
+const stopGlobalLoading = () => {
+  try {
+    useLoadingStore().stopLoading()
+  } catch (error) {
+    console.warn('Loading store unavailable', error)
+  }
+}
 
 const redirectToLogin = () => {
   const currentPath = router.currentRoute?.value?.path
@@ -58,7 +75,7 @@ const redirectToLogin = () => {
 const refreshSession = async (userStore) => {
   if (!refreshPromise) {
     refreshPromise = refreshClient
-      .post(REFRESH_ENDPOINT)
+      .post(REFRESH_ENDPOINT, undefined, { skipGlobalLoading: true })
       .then(({ data }) => {
         const userInfo = data?.user ?? {}
         userStore.setSession(data, {
@@ -100,17 +117,26 @@ function recurMakeId(obj) {
   }
 }
 
-function getCookie(name) {
-  if (typeof document === 'undefined') {
-    return undefined
+apiClient.interceptors.request.use(
+  (config) => {
+    const trackLoading = shouldTrackLoading(config)
+    config.__trackLoading = trackLoading
+    if (trackLoading) {
+      startGlobalLoading()
+    }
+    return config
+  },
+  (error) => {
+    stopGlobalLoading()
+    return Promise.reject(error)
   }
-  const pattern = new RegExp('(?:^|; )' + encodeURIComponent(name) + '=([^;]*)')
-  const match = document.cookie.match(pattern)
-  return match ? decodeURIComponent(match[1]) : undefined
-}
+)
 
 apiClient.interceptors.response.use(
   async (response) => {
+    if (response.config?.__trackLoading) {
+      stopGlobalLoading()
+    }
     
     const errmsg = response?.data?.__errmsg__
     if (!errmsg) {
@@ -130,6 +156,9 @@ apiClient.interceptors.response.use(
     return response
   },
   async (error) => {
+    if (error?.config?.__trackLoading) {
+      stopGlobalLoading()
+    }
     console.log("🚀 ~ error:", error)
     const originalRequest = error?.config
     const status = error?.response?.status

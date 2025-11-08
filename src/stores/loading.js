@@ -1,12 +1,26 @@
-import { ref } from "vue"
+import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 
 export const useLoadingStore = defineStore('loading', () => {
-  const isLoading = ref(false)
+  const activeRequests = ref(0)
+  const isLoading = computed(() => activeRequests.value > 0)
 
-  function $reset() {
-    isLoading.value = false
+  const startLoading = () => {
+    activeRequests.value += 1
   }
 
-  return { isLoading, $reset }
+  const stopLoading = () => {
+    activeRequests.value = Math.max(0, activeRequests.value - 1)
+  }
+
+  function $reset() {
+    activeRequests.value = 0
+  }
+
+  return {
+    isLoading,
+    startLoading,
+    stopLoading,
+    $reset
+  }
 })
